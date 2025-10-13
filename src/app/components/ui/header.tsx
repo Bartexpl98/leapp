@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import AcmeLogo from '@/app/components/ui/acme-logo';
 import Link from 'next/link';
 import { User as UserIcon, LogOut } from 'lucide-react';
