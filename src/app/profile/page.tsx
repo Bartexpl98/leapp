@@ -15,14 +15,12 @@ export default function ProfileSetupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect if not logged in
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/signin");
     }
   }, [status, router]);
 
-  // Fetch user profile by email
   useEffect(() => {
     const fetchUserData = async () => {
       if (session?.user?.email) {
@@ -35,18 +33,18 @@ export default function ProfileSetupPage() {
           });
 
           if (!res.ok) {
-              const text = await res.text();
-              console.error("Non-OK response:", res.status, text);
-              setError("Unable to fetch user profile");
-              return;
-            }
+            const text = await res.text();
+            console.error("Non-OK response:", res.status, text);
+            setError("Unable to fetch user profile");
+            return;
+          }
 
           const data = await res.json();
           console.log("Fetched user data:", data);
           const user = data.user;
           if (res.ok && user) {
             if (user.onboardingStep && user.onboardingStep >= 2) {
-              router.push("/dashboard"); // already completed
+              router.push("/dashboard");
               return;
             }
 
@@ -56,9 +54,14 @@ export default function ProfileSetupPage() {
           } else {
             setError("Unable to fetch user profile");
           }
-        } catch (err) {
-          console.error("Fetch error:", err);
-          setError("Error fetching user profile");
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            console.error("Fetch error:", err.message);
+            setError("Error fetching user profile");
+          } else {
+            console.error("Unknown error:", err);
+            setError("Unexpected error occurred");
+          }
         }
       }
     };
@@ -92,8 +95,12 @@ export default function ProfileSetupPage() {
       if (!res.ok) throw new Error("Failed to update profile");
 
       router.push("/profile-setup/step-2");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Something went wrong");
+      } else {
+        setError("Unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -119,8 +126,12 @@ export default function ProfileSetupPage() {
       if (!res.ok) throw new Error("Failed to skip profile setup");
 
       router.push("/profile-setup/step-2");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Something went wrong");
+      } else {
+        setError("Unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

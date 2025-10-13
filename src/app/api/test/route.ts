@@ -12,7 +12,9 @@ const Entry = mongoose.models.Entry || mongoose.model('Entry', EntrySchema);
 
 export async function POST(req: Request) {
   try {
-    await dbConnect();
+
+    await dbConnect;
+  
     const { userId, title, description } = await req.json();
 
     if (!userId || !title || !description) {

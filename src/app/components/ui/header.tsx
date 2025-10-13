@@ -1,6 +1,5 @@
 'use client';
 
-import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';

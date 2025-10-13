@@ -1,4 +1,5 @@
 "use client";
+
 // app/profile/step-2/page.tsx
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -35,7 +36,7 @@ export default function ProfileStep2Page() {
           } else {
             setError("Unable to fetch user ID");
           }
-        } catch (err) {
+        } catch {
           setError("Error fetching user ID");
         }
       }
@@ -70,8 +71,12 @@ export default function ProfileStep2Page() {
       if (!res.ok) throw new Error("Failed to update profile");
 
       router.push("/profile/complete");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Something went wrong");
+      } else {
+        setError("Unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,8 +105,12 @@ export default function ProfileStep2Page() {
       if (!res.ok) throw new Error("Failed to skip profile step");
 
       router.push("/profile/complete");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || "Something went wrong");
+      } else {
+        setError("Unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

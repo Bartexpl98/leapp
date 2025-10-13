@@ -31,7 +31,7 @@ export default function RootLayout({
     <head>
       <link rel="icon" href="/favicon.ico" />
     </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased flex flex-col min-h-screen`}>
         <Providers>
           <HeaderWrapper /> 
           
@@ -46,7 +46,8 @@ export default function RootLayout({
     </html>
   );
 }
-
+// flex min-h-screen flex-col justify-startmd:flex-row
+// p-4 sm:p-6
 // <aside className="hidden md:block md:w-64 bg-gray-100 p-4">
 //   <SideNav />
 // </aside>

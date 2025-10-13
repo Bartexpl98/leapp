@@ -20,8 +20,9 @@ export default async function Page() {
 
   return (
     <main>
-      <h1 className={`${lusitana.className} mb-4 text-xl md:text-4xl`}>
-        Joemon's Dashboard
+    <h1 className={`${lusitana.className} mb-4 text-xl md:text-4xl`}>
+
+        {"Joemon's Dashboard"}
       </h1>
 
       <div className="flex items-center justify-center md:w-3/5 md:px-28 md:py-12 gap-12">
@@ -29,7 +30,7 @@ export default async function Page() {
 
         <div className="rounded-full border-8 border-blue-500 overflow-hidden">
           <Image
-            src="/joemon.jpg"
+            src="/flower.jpg"
             width={1000}
             height={760}
              sizes="(max-width: 768px) 100vw, 50vw"

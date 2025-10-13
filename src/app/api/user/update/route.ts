@@ -1,23 +1,39 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
-import User from "@/models/UserSchema";
-import dbConnect from "@/lib/dbConnect"; // your mongoose connector
+// import { authOptions } from "@/app/lib/auth";
+import User, { IUser } from "@/app/models/user"; // ✅ correct import
+import { dbConnect } from "@/app/lib/mongoose";  // ✅ consistent import
+import { authOptions } from "@/app/lib/auth";
 
 export async function POST(req: Request) {
   await dbConnect();
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
+  // ✅ typed request body (partial user)
+  const body: Partial<IUser> = await req.json();
 
-  // Only allow specific keys to update
-  const allowedUpdates = ["name", "preferences.theme", "preferences.language", "preferences.notifications"];
-  const update: Record<string, any> = {};
+  // ✅ allowed updates
+  const allowedUpdates = [
+    "name",
+    "preferences.theme",
+    "preferences.language",
+    "preferences.notifications",
+  ] as const;
+
+  // ✅ avoid `any`
+  const update: Record<string, unknown> = {};
+
   for (const key of allowedUpdates) {
-    const value = key.split('.').reduce((obj, k) => obj?.[k], body);
+    const value = key.split(".").reduce<unknown>(
+      (obj, k) =>
+        obj && typeof obj === "object" ? (obj as Record<string, unknown>)[k] : undefined,
+      body
+    );
+
     if (value !== undefined) {
       update[key] = value;
     }
