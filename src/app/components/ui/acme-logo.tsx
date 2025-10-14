@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function AcmeLogo() {
   return (
-<div className={`${lusitana.className} flex items-center gap-3 leading-none text-red-500`}>
+<div className={`${lusitana.className} flex items-center gap-3 leading-none text-white-500`}>
       {/* icon stays fixed-size (won't shrink below this) */}
       <GlobeAltIcon className="flex-shrink-0 h-7 w-7 sm:h-9 sm:w-9 md:h-11 md:w-11 lg:h-14 lg:w-14 rotate-[15deg]" />
 
