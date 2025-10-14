@@ -18,7 +18,11 @@ export async function POST(req: Request) {
       email,
       passwordHash: hashed,
       authProvider: "password",
-      gdprConsent: true,
+      gdprConsent: {
+        accepted: true,
+        acceptedAt: new Date(),
+        version: "1.0",
+      },
       profileCompleted: false,
     });
 
