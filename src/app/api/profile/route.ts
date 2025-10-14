@@ -26,9 +26,9 @@ export async function POST(req: Request) {
 
     
     const user = await User.findOneAndUpdate(
-      { email },                                  // filter
-      { $set: update, $setOnInsert: { email } },  // update
-      { new: true, upsert: true }                 // options
+      { email },       // filter
+      { $set: update},  // update
+      { new: true}      // options
     ).lean();
 
     return NextResponse.json({ message: "User updated", user });
