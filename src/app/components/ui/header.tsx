@@ -133,7 +133,7 @@ export default function Header() {
               <div className="hidden md:flex items-center gap-2">
                 <button
                   onClick={() => router.push('/signin')}
-                  className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-medium text-white shadow shadow-blue-600/30 hover:bg-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-medium text-white shadow shadow-blue-600/30 hover:bg-violet-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                 >
                   Sign In
                 </button>

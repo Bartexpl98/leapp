@@ -67,7 +67,7 @@ export default async function DashboardPage() {
         {/* Hero / Illustration */}
         <div className="relative md:col-span-7 overflow-hidden rounded-2xl border border-white/10 bg-zinc-800/70">
           <Image
-            src="/flower.jpg"
+            src="/DSC02182.jpg"
             alt="App illustration"
             width={1400}
             height={600}
