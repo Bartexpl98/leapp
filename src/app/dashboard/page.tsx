@@ -140,6 +140,7 @@ export default async function DashboardPage() {
         </aside>
       </section>
 
+
       {/* Recent Activity (lightweight timeline pulled from entries) */}
       <section className="mt-8 rounded-2xl border border-white/10 bg-zinc-800/70 p-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
@@ -184,6 +185,19 @@ function Shortcut({ href, label }: { href: string; label: string }) {
     </li>
   );
 }
+
+/* shortcut examples
+<div className="md:col-span-5 rounded-2xl border border-white/10 bg-zinc-800/70 p-5 shadow-xl">
+  <h3 className="mb-3 text-lg font-semibold text-white">Shortcuts</h3>
+  <ul className="grid gap-2 text-sm">
+    <Shortcut href="/debates" label="My Debates" />
+    <Shortcut href="/claims" label="My Claims" />
+    <Shortcut href="/sources" label="Saved Sources" />
+    <Shortcut href="/explore" label="Explore Topics" />
+  </ul>
+</div>
+
+*/
 
 function EmptyState({ title, description, actionHref, actionText }: { title: string; description?: string; actionHref?: string; actionText?: string }) {
   return (
