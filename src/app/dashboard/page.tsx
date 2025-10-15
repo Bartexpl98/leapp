@@ -172,13 +172,13 @@ export default async function DashboardPage() {
   );
 }
 
+//TODO: Make into components
 function Shortcut({ href, label }: { href: string; label: string }) {
   return (
     <li>
       <Link
         href={href}
-        className="flex items-center justify-between rounded-xl border border-white/10 bg-zinc-800/70 px-3 py-2 text-zinc-200 hover:bg-white/10"
-      >
+        className="flex items-center justify-between rounded-xl border border-white/10 bg-zinc-800/70 px-3 py-2 text-zinc-200 hover:bg-white/10">
         <span>{label}</span>
         <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4"><path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </Link>
