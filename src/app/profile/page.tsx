@@ -43,10 +43,10 @@ export default function ProfileSetupPage() {
           console.log("Fetched user data:", data);
           const user = data.user;
           if (res.ok && user) {
-            if (user.onboardingStep && user.onboardingStep >= 2) {
+          /*  if (user.onboardingStep && user.onboardingStep >= 2) {
               router.push("/dashboard");
               return;
-            }
+            }*/
 
             if (user.name) setName(user.name);
             if (user.nickname) setNickname(user.nickname);
@@ -94,7 +94,7 @@ export default function ProfileSetupPage() {
 
       if (!res.ok) throw new Error("Failed to update profile");
 
-      router.push("/profile-setup/step-2");
+      router.push("/profile/step-2");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || "Something went wrong");
@@ -125,7 +125,7 @@ export default function ProfileSetupPage() {
 
       if (!res.ok) throw new Error("Failed to skip profile setup");
 
-      router.push("/profile-setup/step-2");
+      router.push("/profile/step-2");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message || "Something went wrong");

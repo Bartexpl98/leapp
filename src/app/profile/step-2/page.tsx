@@ -64,7 +64,7 @@ export default function ProfileStep2Page() {
           id: userId,
           address,
           bio,
-          onboardingStep: 3,
+          onboardingStep: 2,
         }),
       });
 
