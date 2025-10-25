@@ -63,7 +63,7 @@ export default function AuthForm({ variant }: { variant: Variant }) {
         email,
         password,
         gdprConsent: true,
-        callbackUrl: '/profile',
+        callbackUrl: '/profile-onboarding',
       });
 
       if (result?.error) {
@@ -71,7 +71,7 @@ export default function AuthForm({ variant }: { variant: Variant }) {
         return;
       }
 
-      router.push('/profile');
+      router.push('/profile-onboarding');
     } catch (err: any) {
       setError(err?.message || 'An unknown error occurred');
     } finally {

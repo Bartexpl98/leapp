@@ -1,6 +1,6 @@
 "use client";
 
-// app/profile/step-2/page.tsx
+// app/profile-onboarding/step-2/page.tsx
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
