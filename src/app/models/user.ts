@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, model, models, InferSchemaType } from "mongoose";
 
 interface UserPreferences {
   theme?: "light" | "dark";
@@ -85,4 +85,5 @@ const UserSchema = new Schema<IUser>(
 // UserSchema.index({ email: 1 });
 // UserSchema.index({ phone: 1 });
 
+export type UserDoc = InferSchemaType<typeof UserSchema>;
 export default mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
