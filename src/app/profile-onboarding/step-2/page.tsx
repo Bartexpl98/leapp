@@ -1,6 +1,5 @@
 "use client";
 
-// app/profile-onboarding/step-2/page.tsx
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -9,74 +8,53 @@ export default function ProfileStep2Page() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  const [userId, setUserId] = useState<string | null>(null);
-  const [address, setAddress] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   // Redirect if not logged in
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/signin");
-    }
+    if (status === "unauthenticated") router.push("/signin");
   }, [status, router]);
 
-  // Fetch user ID
-  useEffect(() => {
-    const fetchUserId = async () => {
-      if (session?.user?.id) {
-        setUserId(session.user.id);
-      } else if (session?.user?.email) {
-        try {
-          const res = await fetch(`/api/user-by-email?email=${session.user.email}`);
-          const data = await res.json();
-          if (res.ok && data?.id) {
-            setUserId(data.id);
-          } else {
-            setError("Unable to fetch user ID");
-          }
-        } catch {
-          setError("Error fetching user ID");
-        }
-      }
-    };
-
-    fetchUserId();
-  }, [session]);
+  const email = session?.user?.email?.trim().toLowerCase();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    if (!userId) {
-      setError("User details not found");
+    if (!email) {
+      setError("User email not found");
       setLoading(false);
       return;
     }
 
     try {
+      const body: any = {
+        email,
+        address: { line1: addressLine1 },
+        onboardingStep: 2,
+      };
+
+
+      // body.bio = bio; //only if add schema
+
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: userId,
-          address,
-          bio,
-          onboardingStep: 2,
-        }),
+        body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error("Failed to update profile");
-
-      router.push("/profile/complete");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Something went wrong");
-      } else {
-        setError("Unexpected error occurred");
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || "Failed to update profile");
       }
+
+      router.push("/profile");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -86,8 +64,8 @@ export default function ProfileStep2Page() {
     setLoading(true);
     setError("");
 
-    if (!userId) {
-      setError("User details not found");
+    if (!email) {
+      setError("User email not found");
       setLoading(false);
       return;
     }
@@ -97,20 +75,19 @@ export default function ProfileStep2Page() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: userId,
+          email,
           onboardingStep: 3,
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to skip profile step");
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || "Failed to skip profile step");
+      }
 
       router.push("/profile/complete");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Something went wrong");
-      } else {
-        setError("Unexpected error occurred");
-      }
+      setError(err instanceof Error ? err.message : "Unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -120,28 +97,26 @@ export default function ProfileStep2Page() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 bg-white p-6 rounded shadow"
-      >
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4 bg-white p-6 rounded shadow">
         <h2 className="text-2xl font-bold">Step 2: Additional Info</h2>
 
         {error && <p className="text-red-500">{error}</p>}
 
         <div>
-          <label className="block mb-1">Address</label>
+          <label className="block mb-1">Address (Line 1)</label>
           <input
             type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={addressLine1}
+            onChange={(e) => setAddressLine1(e.target.value)}
             placeholder="Your address"
             className="border rounded w-full p-2"
             disabled={isDisabled}
           />
         </div>
 
+        {/* Optional bio - needs addition in schema */}
         <div>
-          <label className="block mb-1">Short Bio</label>
+          <label className="block mb-1">Short Bio (optional)</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}

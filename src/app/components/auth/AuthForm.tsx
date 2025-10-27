@@ -43,7 +43,7 @@ export default function AuthForm({ variant }: { variant: Variant }) {
       if (res?.error) throw new Error(res.error);
 
       // redirect can differ by variant if you like
-      router.push(isSignup ? '/profile-setup' : '/explore');
+      router.push(isSignup ? '/profile-onboarding' : '/explore');
     } catch (err: any) {
       setError(err?.message || 'An unknown error occurred');
     } finally {

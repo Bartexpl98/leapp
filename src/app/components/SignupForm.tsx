@@ -31,8 +31,8 @@ export default function SignupForm() {
     if (res?.error) {
       setError(res.error);
     } else {
-      // Redirect to progressive profile setup
-      router.push("/profile-setup");
+      // Redirect to progressive profile onboarding
+      router.push("/profile-onboarding");
     }
   };
 
