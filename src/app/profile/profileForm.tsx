@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { saveProfile } from "./actions";
+import { useRouter } from "next/navigation";
+
 
 type UserDTO = {
   email?: string;
@@ -20,6 +22,7 @@ type UserDTO = {
 
 export default function ProfileForm({ initialUser }: { initialUser: UserDTO }) {
   const [msg, setMsg] = useState("");
+  const router = useRouter();
 
   return (
     <form
@@ -27,6 +30,7 @@ export default function ProfileForm({ initialUser }: { initialUser: UserDTO }) {
         setMsg("Saving…");
         try {
           await saveProfile(fd);
+          router.refresh(); 
           setMsg("Saved ✅");
         } catch (e: any) {
           setMsg(e?.message || "Save failed");
