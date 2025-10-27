@@ -85,7 +85,7 @@ export default function ProfileStep2Page() {
         throw new Error(t || "Failed to skip profile step");
       }
 
-      router.push("/profile/complete");
+      router.push("/profile");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Unexpected error occurred");
     } finally {

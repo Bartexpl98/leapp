@@ -1,6 +1,7 @@
 "use server";
 
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { dbConnect } from "@/app/lib/mongoose";
 import User from "@/app/models/user";
 
@@ -13,8 +14,8 @@ const i = (v: FormDataEntryValue | null) => {
 };
 
 export async function saveProfile(formData: FormData) {
-  const session = await getServerSession();
-  const email = session?.user?.email;
+  const session = await getServerSession(authOptions);
+  const email = session?.user?.email?.trim().toLowerCase();
   if (!email) throw new Error("Not signed in");
 
   const update: any = {};

@@ -46,11 +46,13 @@ export default function AuthForm({ variant }: { variant: Variant }) {
 
     setLoading(true);
     try {
+      const emailNorm = email.trim().toLowerCase();
+
       if (isSignup) {
         const res = await fetch('/api/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: emailNorm, password }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -58,9 +60,9 @@ export default function AuthForm({ variant }: { variant: Variant }) {
         }
       }
 
-      const result = await signIn('email-password', {
+      const result = await signIn('credentials', {
         redirect: false,
-        email,
+        email: emailNorm,
         password,
         gdprConsent: true,
         callbackUrl: '/profile-onboarding',
@@ -111,6 +113,7 @@ export default function AuthForm({ variant }: { variant: Variant }) {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
             className="w-full rounded-lg bg-zinc-800 p-2 text-zinc-100 ring-1 ring-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-400"
+            required
           />
         </div>
 

@@ -88,15 +88,6 @@ export default function ProfileForm({ initialUser }: { initialUser: UserDTO }) {
         </div>
       </section>
 
-      {/* Onboarding flags */}
-      <section className="rounded-2xl border border-white/10 bg-zinc-800/70 p-5">
-        <h2 className="mb-3 text-lg font-semibold text-white">Onboarding</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <NumberField label="Onboarding step" name="onboardingStep" defaultValue={String(initialUser.onboardingStep ?? 0)} min={0} />
-          <Checkbox label="Profile completed" name="profileCompleted" defaultChecked={!!initialUser.profileCompleted} />
-        </div>
-      </section>
-
       <div className="flex justify-end">
         <button type="submit" className="rounded-xl bg-violet-600/90 px-4 py-2 text-white hover:bg-violet-600">
           Save changes
