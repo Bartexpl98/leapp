@@ -1,7 +1,7 @@
 import { dbConnect } from "@/app/lib/mongoose";
 import User, { UserDoc } from "@/app/models/user";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth-options";
 import ProfileForm from "./profileForm";
 
 type UserDTO = {
