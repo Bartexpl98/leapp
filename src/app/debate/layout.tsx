@@ -1,7 +1,5 @@
 // app/debate/layout.tsx
-import Link from "next/link";
 import type { Metadata } from "next";
-import { lusitana } from "@/app/components/ui/fonts";
 import TopicsComponent from "@/app/components/TopicsComponent"
 
 export const metadata: Metadata = {
