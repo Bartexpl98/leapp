@@ -4,6 +4,8 @@ type TopicsProps = {
   topics?: string[];
 };
 
+
+// Make it so that whatever topic i'm on is the one being hihglighted?
 // should i be getting the topics here?
 export default function Topics({ topics = [] }: TopicsProps) {
   return (
