@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { dbConnect } from "@/app/lib/mongoose";
 import { findUserByEmailOrPhone, createUser } from "@/app/services/authService";
 import { hashPassword, comparePassword } from "@/app/services/passwordService";
+import type { JWT } from "next-auth/jwt";
+import type { User as NextAuthUser } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -54,11 +56,14 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt(
+      { token, user }: { token: JWT; user?: NextAuthUser } 
+    ) {
       if (user) {
-        token.id = (user as any).id;
-        token.email = user.email;
-        token.name = user.name;
+        const u = user as NextAuthUser & { id: string };
+        token.id = u.id;
+        token.email = u.email ?? token.email;
+        token.name = u.name ?? token.name;
       }
       return token;
     },

@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   await dbConnect();
 
   const raw = await Entry.find().sort({ createdAt: -1 }).limit(20).lean();
-  const entries: EntryData[] = raw.map((e: any) => ({
+  const entries: EntryData[] = (raw as unknown as EntryData[]).map((e) => ({
     _id: e._id.toString(),
     userId: e.userId,
     title: e.title,

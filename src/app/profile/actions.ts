@@ -13,12 +13,44 @@ const i = (v: FormDataEntryValue | null) => {
   return Number.isInteger(n) && n >= 0 ? n : undefined;
 };
 
+type AddressUpdate = Partial<{
+  line1: string;
+  line2: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}>;
+
+type NotificationsUpdate = {
+  email: boolean;
+  sms: boolean;
+  push: boolean;
+};
+
+type PreferencesUpdate = {
+  theme?: string;
+  language?: string;
+  notifications: NotificationsUpdate;
+};
+
+type UpdatePayload = Partial<{
+  name: string;
+  nickname: string;
+  phone: string;
+  address: AddressUpdate;
+  preferences: PreferencesUpdate;
+  onboardingStep: number;
+  profileCompleted: boolean;
+}>;
+
+
+
 export async function saveProfile(formData: FormData) {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email?.trim().toLowerCase();
   if (!email) throw new Error("Not signed in");
 
-  const update: any = {};
+  const update: UpdatePayload = {};
 
   // account
   const name = s(formData.get("name"));
@@ -29,7 +61,7 @@ export async function saveProfile(formData: FormData) {
   if (phone !== undefined) update.phone = phone;
 
   // address
-  const address: any = {};
+  const address: AddressUpdate = {};
   const line1 = s(formData.get("address.line1"));
   const line2 = s(formData.get("address.line2"));
   const city = s(formData.get("address.city"));
@@ -48,14 +80,16 @@ export async function saveProfile(formData: FormData) {
   const notifEmail = b(formData.get("notifEmail"));
   const notifSms = b(formData.get("notifSms"));
   const notifPush = b(formData.get("notifPush"));
-  const prefs: any = {};
+  
+  const prefs: PreferencesUpdate = {notifications: { email: notifEmail, sms: notifSms, push: notifPush },};
+
   if (theme === "light" || theme === "dark") prefs.theme = theme;
   const langs = ["en", "fr", "es", "de", "hi", "ml"] as const;
   if (language && (langs as readonly string[]).includes(language)) prefs.language = language;
   prefs.notifications = { email: notifEmail, sms: notifSms, push: notifPush };
   update.preferences = prefs; 
 
-  // onboarding flags 
+  // onboarding flags - probably delete?
   const onboardingStep = i(formData.get("onboardingStep"));
   if (onboardingStep !== undefined) update.onboardingStep = onboardingStep;
   if (formData.has("profileCompleted")) update.profileCompleted = b(formData.get("profileCompleted"));

@@ -5,8 +5,8 @@ import NewDebateForm from "./NewDebateForm";
 export default async function NewDebatePage() {
 
     await dbConnect();
-    //const topics = await Topic.find({}).select({ name: 1, slug: 1 }).sort({ name: 1 }).lean<{ name: string; slug: string }[]>();
-    const topics = ["Tech & Society", "Education", "Health", "Policy"];
+    const topics = await Topic.find({}).select({ name: 1, slug: 1 }).sort({ name: 1 }).lean<{ name: string; slug: string }[]>();
+    //const topics = ["Tech & Society", "Education", "Health", "Policy"];
     
     return (
         <main className="max-w-2xl mx-auto p-8">

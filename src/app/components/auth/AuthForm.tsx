@@ -42,10 +42,11 @@ export default function AuthForm({ variant }: { variant: Variant }) {
       const res = await signIn('credentials', { email, password, redirect: false });
       if (res?.error) throw new Error(res.error);
 
-      // redirect can differ by variant if you like
-      router.push(isSignup ? '/profile-onboarding' : '/explore');
-    } catch (err: any) {
-      setError(err?.message || 'An unknown error occurred');
+      router.push(isSignup ? '/profile' : '/explore');
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "An unknown error occurred";
+      setError(msg);
     } finally {
       setLoading(false);
     }

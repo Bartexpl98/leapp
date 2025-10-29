@@ -6,9 +6,9 @@ export interface IDebate {
   slug: string;
   summary: string;
   lastActivityAt: Date;
-  argsCountPro: Number;
-  argsCountCon: Number;
-  topics: [String];
+  argsCountPro: number;
+  argsCountCon: number;
+  topics: [string];
 }
 
 const DebateSchema = new Schema<IDebate>({

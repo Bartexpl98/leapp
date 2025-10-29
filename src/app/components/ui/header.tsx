@@ -129,7 +129,7 @@ export default function Header() {
             {session && (
               <Link
                 href="/debate/new"
-                className="hidden inline-flex items-center gap-2 rounded-xl bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-500"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-500"
                 title="Create a new debate"
               >
                 <Plus size={16} />
@@ -179,7 +179,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <div className="hidden flex items-center gap-2">
+              <div className=" flex items-center gap-2">
                 <button
                   onClick={() => router.push('/signin')}
                   className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-medium text-white shadow shadow-blue-600/30 hover:bg-violet-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"

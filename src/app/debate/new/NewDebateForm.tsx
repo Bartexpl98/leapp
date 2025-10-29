@@ -36,8 +36,9 @@ export default function NewDebateForm({ topics }: { topics: Topic[] }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create debate");
       router.push(`/debate/${data.slug}`);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err:unknown) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(message);
     } finally {
       setLoading(false);
     }

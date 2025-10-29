@@ -32,8 +32,9 @@ export default function ProfileForm({ initialUser }: { initialUser: UserDTO }) {
           await saveProfile(fd);
           router.refresh(); 
           setMsg("Saved ✅");
-        } catch (e: any) {
-          setMsg(e?.message || "Save failed");
+        } catch (e:unknown) {
+          const message = e instanceof Error ? e.message : "Save failed";
+          setMsg(message);
         } finally {
           setTimeout(() => setMsg(""), 2000);
         }

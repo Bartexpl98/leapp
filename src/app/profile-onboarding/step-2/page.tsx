@@ -13,6 +13,13 @@ export default function ProfileStep2Page() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  type ProfileUpdatePayload = {
+  email: string;
+  address?: { line1?: string };
+  onboardingStep: 2 | 3;
+  bio?: string;
+  };
+
   // Redirect if not logged in
   useEffect(() => {
     if (status === "unauthenticated") router.push("/signin");
@@ -32,10 +39,12 @@ export default function ProfileStep2Page() {
     }
 
     try {
-      const body: any = {
-        email,
-        address: { line1: addressLine1 },
-        onboardingStep: 2,
+      
+      const trimmedBio = bio.trim();
+      const body: ProfileUpdatePayload = {email,
+      ...(addressLine1 ? { address: { line1: addressLine1 } } : {}),
+      onboardingStep: 2,
+      ...(trimmedBio ? { bio: trimmedBio } : {}),
       };
 
 
