@@ -4,6 +4,7 @@ type TopicsProps = {
   topics?: string[];
 };
 
+// should i be getting the topics here?
 export default function Topics({ topics = [] }: TopicsProps) {
   return (
     //potentially de-dupe?
