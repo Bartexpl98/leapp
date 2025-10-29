@@ -15,13 +15,9 @@ export default function DebateLayout({ children }: { children: React.ReactNode }
   return (
     <html lang="en">
       <body className="min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-900 text-zinc-100">
-
-        {/* Page shell with sidebar */}
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 grid grid-cols-12 gap-6">
-          {/* LEFT: Sidebar — Debate Topics */}
          <TopicsComponent topics={topics}/>
 
-          {/* MAIN: debate content from nested pages */}
           <main className="col-span-12 md:col-span-10">
             {children}
           </main>
