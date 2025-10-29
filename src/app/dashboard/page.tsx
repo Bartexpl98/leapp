@@ -4,6 +4,8 @@ import { lusitana } from "@/app/components/ui/fonts";
 import { dbConnect } from "@/app/lib/mongoose";
 import Entry from "@/app/models/entry";
 
+export const dynamic = 'force-dynamic';
+
 // Types local to this file so we don't leak Mongoose types to the client
 interface EntryData {
   _id: string;
