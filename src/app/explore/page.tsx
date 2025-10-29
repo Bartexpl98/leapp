@@ -5,6 +5,7 @@ import Topic from "@/app/models/topic";
 import { Types } from "mongoose";
 import SortSelect from "./SortSelect";
 
+export const dynamic = 'force-dynamic';
 
 //should these be separate files?
 type TopicLean = {

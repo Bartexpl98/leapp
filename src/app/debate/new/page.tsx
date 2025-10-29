@@ -2,6 +2,8 @@ import { dbConnect } from "@/app/lib/mongoose";
 import Topic from "@/app/models/topic";
 import NewDebateForm from "./NewDebateForm";
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewDebatePage() {
 
     await dbConnect();

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { lusitana } from "@/app/components/ui/fonts";
 import ArgumentCard, {Post} from "../components/ui/ArgumentCard";
 
+export const dynamic = 'force-dynamic';
 
 export default function DebatePage() {
   const basePath = "/debate"; // change later to /debates/[id]

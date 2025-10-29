@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
+export const dynamic = 'force-dynamic';
+
+
 export default function ProfileStep2Page() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -39,7 +42,7 @@ export default function ProfileStep2Page() {
     }
 
     try {
-      
+
       const trimmedBio = bio.trim();
       const body: ProfileUpdatePayload = {email,
       ...(addressLine1 ? { address: { line1: addressLine1 } } : {}),

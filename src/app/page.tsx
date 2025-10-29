@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { ArrowRight, MessageSquare, CheckCircle2, Lightbulb } from 'lucide-react';
 import DateCard from './components/ui/DateCard'
+
+export const dynamic = 'force-dynamic';
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-zinc-800 text-zinc-100">

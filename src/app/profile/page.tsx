@@ -4,6 +4,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth-options";
 import ProfileForm from "./profileForm";
 
+export const dynamic = 'force-dynamic';
+
+
 type UserDTO = {
   email?: string;
   phone?: string;
