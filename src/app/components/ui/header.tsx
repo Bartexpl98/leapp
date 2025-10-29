@@ -46,7 +46,7 @@ export default function Header() {
   const navItems = [
     { href: '/', label: 'Home' },
     { href: '/dashboard', label: 'Dashboard' },
-    { href: '/topics', label: 'Topics'},
+    { href: '/explore', label: 'Explore'},
     {href: '/about', label:'About'},
     { href: '/resources', label: 'Resources' /*For people to learn how to debate, evaluate sources perhaps?*/}
 
