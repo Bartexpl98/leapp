@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import AcmeLogo from '@/app/components/ui/acme-logo';
 import Link from 'next/link';
-import { User as UserIcon, LogOut } from 'lucide-react';
+import { User as UserIcon, LogOut, Plus } from 'lucide-react';
 
 export default function Header() {
   const { data: session } = useSession();
@@ -16,6 +16,7 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   
+  const [query, setQuery] = useState('');
   //mobile opn state in the future
 
   const toggleDropdown = () => setDropdownOpen((s) => !s);
@@ -32,6 +33,18 @@ export default function Header() {
     window.addEventListener('click', onClick);
     return () => window.removeEventListener('click', onClick);
   }, []);
+
+  const searchRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  },[]);
 
   const userInitials = session?.user?.name
     ? session.user.name
@@ -70,24 +83,60 @@ export default function Header() {
     );
   };
 
-  return (
+    function submitSearch(e: React.FormEvent) {
+      e.preventDefault();
+      const q = query.trim();
+      router.push(q ? `/explore?q=${encodeURIComponent(q)}` : '/explore');
+  }
+
+   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-gradient-to-r from-zinc-800/95 via-zinc-800/95 to-zinc-800/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/70 shadow-lg">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Left: Brand */}
+      <div className="mx-auto max-w-7xl px-4 px-6 px-8">
+        <div className="flex h-16 items-center justify-between gap-3">
+          {/* Left*/}
           <div className="flex items-center gap-3">
             <AcmeLogo />
           </div>
 
-          {/* Center: Nav  */}
-          <nav className="hidden md:flex items-center gap-2">
-            {navItems.map((n) => (
-              <NavLink key={n.href} href={n.href} label={n.label} />
-            ))}
-          </nav>
+          {/* Center*/}
+          <div className="flex flex-1 items-center justify-center gap-3">
+            <nav className="flex items-center gap-2">
+              {navItems.map((n) => (
+                <NavLink key={n.href} href={n.href} label={n.label} />
+              ))}
+            </nav>
 
-          {/* Right: Auth / User */}
+            {/*Search bar*/}
+             <form
+              onSubmit={submitSearch}
+              className="flex items-center flex-1 max-w-md"
+              role="search"
+              aria-label="Site search"
+            >
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search debates… (press Enter)"
+                className="w-full rounded-xl bg-zinc-900/60 px-3 py-2 text-sm text-zinc-100 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              />
+            </form>
+          </div>
+
+          {/* Right:*/}
           <div className="flex items-center gap-3">
+            {/* New Debate (must be signed in) */}
+            {session && (
+              <Link
+                href="/debate/new"
+                className="hidden inline-flex items-center gap-2 rounded-xl bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-500"
+                title="Create a new debate"
+              >
+                <Plus size={16} />
+                New debate
+              </Link>
+            )}
+
             {session ? (
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -130,7 +179,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden flex items-center gap-2">
                 <button
                   onClick={() => router.push('/signin')}
                   className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-medium text-white shadow shadow-blue-600/30 hover:bg-violet-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
