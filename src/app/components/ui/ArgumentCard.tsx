@@ -59,13 +59,6 @@ export default function ArgumentCard({
         >
           Rebuttals
         </Link>
-        <Link
-          href={rebuttalsHref} //open up response bo
-          className="rounded-xl bg-white/10 px-3 py-2 text-xs font-medium text-zinc-100 ring-1 ring-white/10 hover:bg-white/10"
-          aria-label="View rebuttals"
-        >
-          Rebuttals
-        </Link>
 
         {post.author && (
           <span className="ml-auto text-xs text-zinc-400">by {post.author}</span>

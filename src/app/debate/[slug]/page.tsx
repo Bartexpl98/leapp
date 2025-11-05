@@ -100,9 +100,15 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
         <section className="col-span-12 md:col-span-6 space-y-4">
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Affirmative</h2>
-            <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
-              View all
-            </Link>
+              <div className="flex items-center gap-3">
+                <Link href={`${basePath}/new-argument?side=affirmative`}
+                      className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600">
+                  Add argument
+                </Link>
+                <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
+                  View all
+                </Link>
+              </div>
           </header>
 
           {affirmatives.length === 0 ? (
@@ -132,9 +138,15 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
         <section className="col-span-12 md:col-span-6 space-y-4">
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Opposing</h2>
-            <Link href={`${basePath}/opposing`} className="text-sm text-violet-300 hover:underline">
-              View all
-            </Link>
+              <div className="flex items-center gap-3">
+                <Link href={`${basePath}/new-argument?side=affirmative`}
+                      className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600">
+                  Add argument
+                </Link>
+                <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
+                  View all
+                </Link>
+              </div>
           </header>
 
           {opposing.length === 0 ? (
