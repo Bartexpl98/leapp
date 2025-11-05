@@ -13,8 +13,6 @@ export default function DebateLayout({ children }: { children: React.ReactNode }
   const topics = ["All Topics", "Tech & Society", "Education", "Health", "Policy"];
 
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-900 text-zinc-100">
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 grid grid-cols-12 gap-6">
          <TopicsComponent topics={topics}/>
 
@@ -22,7 +20,5 @@ export default function DebateLayout({ children }: { children: React.ReactNode }
             {children}
           </main>
         </div>
-      </body>
-    </html>
   );
 }
