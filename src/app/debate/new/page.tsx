@@ -7,7 +7,9 @@ export const dynamic = 'force-dynamic';
 export default async function NewDebatePage() {
 
     await dbConnect();
-    const topics = await Topic.find({}).select({ name: 1, slug: 1 }).sort({ name: 1 }).lean<{ name: string; slug: string }[]>();
+
+    const docs = await Topic.find({}).select({ _id: 0, name: 1, slug: 1 }).sort({ name: 1 }).lean();
+    const topics = docs.map((t: any) => ({name: String(t.name),slug: String(t.slug),}));
     //const topics = ["Tech & Society", "Education", "Health", "Policy"];
     
     return (

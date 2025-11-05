@@ -4,11 +4,11 @@ export interface IDebate {
   topicId: mongoose.Types.ObjectId;
   question: string;
   slug: string;
-  summary: string;
-  lastActivityAt: Date;
+  summary?: string;
+  lastActivityAt?: Date;
   argsCountPro: number;
   argsCountCon: number;
-  topics: [string];
+  topics: string[];
 }
 
 const DebateSchema = new Schema<IDebate>({

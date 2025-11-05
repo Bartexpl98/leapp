@@ -24,7 +24,7 @@ export default function NewDebateForm({ topics }: { topics: Topic[] }) {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch("/api/debates", {
+      const res = await fetch("/api/debate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
