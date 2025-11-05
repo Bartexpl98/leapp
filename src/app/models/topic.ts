@@ -1,9 +1,12 @@
-import mongoose, { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 export interface ITopic {
   _id: mongoose.Types.ObjectId;
   name: string;
   slug: string;
 }
+
+const { Schema, model, models } = mongoose;
+
 
 const TopicSchema = new Schema<ITopic>({
   name: { type: String, required: true },
