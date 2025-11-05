@@ -19,6 +19,9 @@ type ChipLean = {
   slug: string;
 };
 
+// should i be using args count or the number of likes per side or something else?
+
+
 type DebateLean = {
   _id: Types.ObjectId;
   topicId: Types.ObjectId;
