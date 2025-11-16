@@ -3,25 +3,32 @@ import { dbConnect } from "@/app/lib/mongoose";
 import Debate from "@/app/models/debate";
 import NewArgumentForm from "./NewArgumentForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewArgumentPage({
   params,
   searchParams,
 }: {
   params: { slug: string };
-  searchParams: { side?: "affirmative" | "opposing" };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const { slug } = params;
+
+  const sideParam =
+    typeof searchParams?.side === "string"
+      ? searchParams.side.toLowerCase()
+      : "";
+
   await dbConnect();
 
   const d = await Debate.findOne({ slug })
     .select({ question: 1, slug: 1 })
     .lean<{ question: string; slug: string } | null>();
+
   if (!d) return notFound();
 
-  const initialSide =
-    searchParams.side === "affirmative" || searchParams.side === "opposing"
-      ? searchParams.side
-      : "affirmative";
+  const initialSide: "affirmative" | "opposing" =
+    sideParam === "opposing" ? "opposing" : "affirmative";
 
   return (
     <main className="mx-auto max-w-2xl p-6">

@@ -7,6 +7,13 @@ import { createArgument } from "../actions";
 type Side = "affirmative" | "opposing";
 type EvidenceItem = { url: string; title: string; quote: string; locator: string };
 
+type CreateArgumentResult = { ok: boolean; id?: string; error?: string };
+
+type PageProps = {
+  params: Promise<{ slug: string }>;
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
 export default function NewArgumentForm({
   slug,
   initialSide,
@@ -44,7 +51,7 @@ export default function NewArgumentForm({
 
   return (
     <form
-      action={(fd) => {
+      action={(fd: FormData) => {
         setError("");
 
         // require at least one evidence item with something filled
@@ -63,17 +70,22 @@ export default function NewArgumentForm({
         }
 
         fd.set("slug", slug);
-        fd.set("side", side);
+        fd.set("side", side); // Side is a string union; FormData expects string
         fd.set("title", title);
         fd.set("body", body);
         fd.set("evidence", JSON.stringify(cleaned));
 
         startTransition(async () => {
           try {
-            const res = await createArgument(fd);
-            if (res?.ok) router.push(`/debate/${slug}`);
-          } catch (e: any) {
-            setError(e?.message || "Failed to create argument");
+            const res = (await createArgument(fd)) as CreateArgumentResult | undefined;
+            if (res?.ok) {
+              router.push(`/debate/${slug}`);
+            } else {
+              setError(res?.error ?? "Failed to create argument");
+            }
+          } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : "Failed to create argument";
+            setError(message);
           }
         });
       }}
@@ -137,10 +149,7 @@ export default function NewArgumentForm({
 
         <div className="space-y-3">
           {evidence.map((ev, i) => (
-            <div
-              key={i}
-              className="rounded-lg border border-white/10 bg-zinc-900/60 p-3 space-y-2"
-            >
+            <div key={i} className="rounded-lg border border-white/10 bg-zinc-900/60 p-3 space-y-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input
                   placeholder="URL"

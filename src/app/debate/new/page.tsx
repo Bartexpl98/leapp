@@ -5,11 +5,20 @@ import NewDebateForm from "./NewDebateForm";
 export const dynamic = 'force-dynamic';
 
 export default async function NewDebatePage() {
+    type TopicLean = { name: string; slug: string }; //refactor to its own file?
 
     await dbConnect();
+    
+    const docs = await Topic.find({})
+      .select({ _id: 0, name: 1, slug: 1 })
+      .sort({ name: 1 })
+      .lean<TopicLean[]>();
 
-    const docs = await Topic.find({}).select({ _id: 0, name: 1, slug: 1 }).sort({ name: 1 }).lean();
-    const topics = docs.map((t: any) => ({name: String(t.name),slug: String(t.slug),}));
+    const topics = docs.map((t) => ({
+      name: String(t.name),
+      slug: String(t.slug),
+    }));
+
     //const topics = ["Tech & Society", "Education", "Health", "Policy"];
     
     return (

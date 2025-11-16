@@ -3,6 +3,12 @@ import { dbConnect } from "@/app/lib/mongoose";
 import Debate from "@/app/models/debate";
 import Topic from "@/app/models/topic";
 
+type CreateDebateBody = {
+  question: string;
+  summary?: string;
+  topicSlugs: string[];
+};
+
 function slugify(input: string) {
   return input
     .toLowerCase()
@@ -14,7 +20,7 @@ function slugify(input: string) {
 async function uniqueSlug(base: string) {
   let s = base;
   let i = 2;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {                                                            // not a great solution, perhaps make my own slugifier file?
     const exists = await Debate.findOne({ slug: s }).select("_id").lean();
     if (!exists) return s;
@@ -59,10 +65,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ id: String(created._id), slug: created.slug }, { status: 201 });
-  } catch (err: any) {
-    console.error("Create debate error:", err);
-    return NextResponse.json({ message: err?.message || "Server error" }, { status: 500 });
-  }
+  } catch (err: unknown) {
+      console.error("Create debate error:", err);
+      const message = err instanceof Error ? err.message : "Server error";
+      return NextResponse.json({ message }, { status: 500 });
+}
 }
 
 // GET Handler?

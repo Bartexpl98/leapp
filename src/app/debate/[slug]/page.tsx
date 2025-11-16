@@ -5,8 +5,9 @@ import Debate from "@/app/models/debate";
 import Argument from "@/app/models/argument";
 import { lusitana } from "@/app/components/ui/fonts";
 import ArgumentCard, { Post } from "@/app/components/ui/ArgumentCard";
+import type { Types } from "mongoose";
 
-export const dynamic = "force-dynamic"; // fetch at runtime. this way we avoid build-time DB connect errors
+export const dynamic = "force-dynamic"; // fetch at runtime to avoid build-time DB connect errors
 
 type PageProps = {
   params: { slug: string };
@@ -15,6 +16,23 @@ type PageProps = {
 
 const PAGE_SIZE = 10;
 
+type DebateLean = {
+  _id: Types.ObjectId;
+  question: string;
+  slug: string;
+  argsCountPro?: number;
+  argsCountCon?: number;
+};
+
+type ArgLean = {
+  _id: Types.ObjectId;
+  title?: string;
+  body: string;
+  summary?: string;
+  authorId?: Types.ObjectId | string;
+  createdAt?: Date | string;
+};
+
 export default async function DebateBySlugPage({ params, searchParams }: PageProps) {
   const { slug } = params;
   const proPage = Math.max(1, parseInt(searchParams.proPage || searchParams.page || "1", 10));
@@ -22,61 +40,43 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
 
   await dbConnect();
 
-  const debate = await Debate.findOne({ slug }).lean<{
-    _id: any;
-    question: string;
-    slug: string;
-    argsCountPro?: number;
-    argsCountCon?: number;
-  } | null>();
-
+  const debate = await Debate.findOne({ slug }).lean<DebateLean | null>();
   if (!debate) return notFound();
 
   const debateId = debate._id;
-
-  
 
   const [proArgs, conArgs, proTotal, conTotal] = await Promise.all([
     Argument.find({ debateId, side: "affirmative", depth: 0 })
       .sort({ score: -1, createdAt: -1 })
       .skip((proPage - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE)
-      .lean<{
-        _id: any;
-        title?: string;
-        body: string;
-        summary?: string;
-        authorId?: any;
-        createdAt?: Date;
-      }[]>(),
+      .lean<ArgLean[]>(),
 
     Argument.find({ debateId, side: "opposing", depth: 0 })
       .sort({ score: -1, createdAt: -1 })
       .skip((conPage - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE)
-      .lean<{
-        _id: any;
-        title?: string;
-        body: string;
-        summary?: string;
-        authorId?: any;
-        createdAt?: Date;
-      }[]>(),
+      .lean<ArgLean[]>(),
 
     Argument.countDocuments({ debateId, side: "affirmative", depth: 0 }),
     Argument.countDocuments({ debateId, side: "opposing", depth: 0 }),
   ]);
 
-  
+  const toPost = (a: ArgLean): Post => {
+    const createdIso = a.createdAt
+      ? a.createdAt instanceof Date
+        ? a.createdAt.toISOString()
+        : new Date(a.createdAt).toISOString()
+      : new Date().toISOString();
 
-
-  const toPost = (a: any): Post => ({
-    id: String(a._id),
-    title: a.title || a.summary || (a.body?.slice(0, 80) + "…"),
-    summary: a.summary || a.body?.slice(0, 200),
-    author: a.authorId ? String(a.authorId) : "Anonymous",
-    createdAt: a.createdAt ? a.createdAt.toISOString() : new Date().toISOString(),
-  });
+    return {
+      id: String(a._id),
+      title: a.title || a.summary || (a.body?.slice(0, 80) + "…"),
+      summary: a.summary || a.body?.slice(0, 200),
+      author: a.authorId ? String(a.authorId) : "Anonymous",
+      createdAt: createdIso,
+    };
+  };
 
   const affirmatives: Post[] = proArgs.map(toPost);
   const opposing: Post[] = conArgs.map(toPost);
@@ -100,15 +100,17 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
         <section className="col-span-12 md:col-span-6 space-y-4">
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Affirmative</h2>
-              <div className="flex items-center gap-3">
-                <Link href={`${basePath}/new-argument?side=affirmative`}
-                      className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600">
-                  Add argument
-                </Link>
-                <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
-                  View all
-                </Link>
-              </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`${basePath}/new-argument?side=affirmative`}
+                className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
+              >
+                Add argument
+              </Link>
+              <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
+                View all
+              </Link>
+            </div>
           </header>
 
           {affirmatives.length === 0 ? (
@@ -138,15 +140,17 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
         <section className="col-span-12 md:col-span-6 space-y-4">
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Opposing</h2>
-              <div className="flex items-center gap-3">
-                <Link href={`${basePath}/new-argument?side=affirmative`}
-                      className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600">
-                  Add argument
-                </Link>
-                <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
-                  View all
-                </Link>
-              </div>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`${basePath}/new-argument?side=opposing`}
+                className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
+              >
+                Add argument
+              </Link>
+              <Link href={`${basePath}/opposing`} className="text-sm text-violet-300 hover:underline">
+                View all
+              </Link>
+            </div>
           </header>
 
           {opposing.length === 0 ? (
@@ -176,9 +180,7 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
   );
 }
 
-//export metadate? 
-
-//helpers. need refactor
+// helpers
 
 function EmptySide({ label }: { label: string }) {
   return (
@@ -190,7 +192,7 @@ function EmptySide({ label }: { label: string }) {
 
 function SidePager({
   basePath,
-  side, 
+  side,
   current,
   totalPages,
   otherSidePage,
