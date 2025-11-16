@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createArgument } from "../actions";
+import type { Side } from "@/app/models/argument";
 
-type Side = "affirmative" | "opposing";
 type EvidenceItem = { url: string; title: string; quote: string; locator: string };
 
 type CreateArgumentResult = { ok: boolean; id?: string; error?: string };
@@ -103,6 +103,7 @@ export default function NewArgumentForm({
           />
           Affirmative
         </label>
+        
         <label className="flex items-center gap-2 text-sm">
           <input
             type="radio"
@@ -112,6 +113,17 @@ export default function NewArgumentForm({
             onChange={() => setSide("opposing")}
           />
           Opposing
+        </label>
+
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name="side"
+            value="neutral"
+            checked={side === "neutral"}
+            onChange={() => setSide("neutral")}
+          />
+          Neutral / Context
         </label>
       </div>
 

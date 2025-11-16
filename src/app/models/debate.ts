@@ -8,6 +8,7 @@ export interface IDebate {
   lastActivityAt?: Date;
   argsCountPro: number;
   argsCountCon: number;
+  argsCountNeutral: number;
   topics: string[];
 }
 
@@ -19,6 +20,8 @@ const DebateSchema = new Schema<IDebate>({
   lastActivityAt: { type: Date, index: true },   
   argsCountPro: { type: Number, default: 0, index: true },
   argsCountCon: { type: Number, default: 0, index: true },
+  argsCountNeutral: {type: Number, default: 0, index: true},
+  
   topics: [{ type: String, index: true }],
 }, { timestamps: true });
 

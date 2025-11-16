@@ -1,4 +1,3 @@
-// models/Entry.ts
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 interface IEntry extends Document {

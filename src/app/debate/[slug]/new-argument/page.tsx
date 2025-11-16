@@ -27,8 +27,12 @@ export default async function NewArgumentPage({
 
   if (!d) return notFound();
 
-  const initialSide: "affirmative" | "opposing" =
-    sideParam === "opposing" ? "opposing" : "affirmative";
+  const initialSide: "affirmative" | "opposing" | "neutral" =
+  sideParam === "opposing"
+    ? "opposing"
+    : sideParam === "neutral"
+    ? "neutral"
+    : "affirmative";
 
   return (
     <main className="mx-auto max-w-2xl p-6">

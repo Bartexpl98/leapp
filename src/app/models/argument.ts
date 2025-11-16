@@ -1,6 +1,6 @@
 import mongoose, { Schema, model, models } from "mongoose"; /// needs work
 
-export type Side = "affirmative" | "opposing";
+export type Side = "affirmative" | "opposing" | "neutral";
 
 const EvidenceSchema = new Schema({
   _id: { type: Schema.Types.ObjectId, auto: true },     // specific evidence
@@ -12,7 +12,7 @@ const EvidenceSchema = new Schema({
 
 const ArgumentSchema = new Schema({
   debateId: { type: Schema.Types.ObjectId, ref: "Debate", index: true, required: true },
-  side: { type: String, enum: ["affirmative", "opposing"], index: true, required: true },
+  side: { type: String, enum: ["affirmative", "opposing", "neutral"], index: true, required: true },
 
   // Threads
   parentId: { type: Schema.Types.ObjectId, ref: "Argument", index: true },

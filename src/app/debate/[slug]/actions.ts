@@ -18,9 +18,8 @@ export async function createArgument(formData: FormData) {
   const body = s(formData.get("body"));
 
   if (!slug || !side || !body) throw new Error("Missing fields");
-  if (side !== "affirmative" && side !== "opposing") {
-    throw new Error("Invalid side");
-  }
+  if (side !== "affirmative" && side !== "opposing" && side !== "neutral") {
+    throw new Error("Invalid side");}
 
   await dbConnect();
 
@@ -39,8 +38,16 @@ export async function createArgument(formData: FormData) {
     authorId: null,
   });
 
-  const incField = side === "affirmative" ? { argsCountPro: 1 } : { argsCountCon: 1 };
-  await Debate.updateOne({ _id: debate._id }, { $inc: incField, $set: { lastActivityAt: new Date() } });
+    let incField: Record<string, 1>;
+    if (side === "affirmative") {
+      incField = { argsCountPro: 1 };
+    } else if (side === "opposing") {
+      incField = { argsCountCon: 1 };
+    } else {
+      incField = { argsCountNeutral: 1 };
+    }
+    
+    await Debate.updateOne({ _id: debate._id }, { $inc: incField, $set: { lastActivityAt: new Date() } });
 
   return { ok: true };
 }
