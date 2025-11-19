@@ -58,12 +58,36 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
   if (!root) return notFound();
 
   const thread = await Argument.find({
-    $or: [{ _id: root._id }, { rootId }],
-  })
-    .sort({ createdAt: 1 })
-    .lean<ArgumentDoc[]>();
+  $or: [{ _id: root._id }, { rootId }],
+}).sort({ createdAt: 1 }).lean<ArgumentDoc[]>();
 
-  const replies = thread.filter((a) => String(a._id) !== String(root._id));
+// Build a parent -> children map so we can order replies as a tree
+  const rootKey = String(root._id);
+  const childrenMap = new Map<string, ArgumentDoc[]>();
+
+  for (const node of thread) {
+    const nodeKey = String(node._id);
+    if (nodeKey === rootKey) continue; // skip root
+
+    const parentKey = node.parentId ? String(node.parentId) : rootKey;
+    const bucket = childrenMap.get(parentKey) ?? [];
+    bucket.push(node);
+    childrenMap.set(parentKey, bucket);
+  }
+
+// Depth-first traversal
+  const orderedReplies: ArgumentDoc[] = [];
+
+  function dfs(parentKey: string) {
+    const children = childrenMap.get(parentKey);
+    if (!children) return;
+    for (const child of children) {
+      orderedReplies.push(child);
+      dfs(String(child._id));
+    }
+  }
+
+  dfs(rootKey);
 
   const basePath = `/debate/${debate.slug}`;
 
@@ -141,10 +165,10 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
       <h2 className="text-sm font-semibold text-zinc-200 mb-1">
         Replies
       </h2>
-      {replies.length === 0 ? (
+      {orderedReplies.length === 0 ? (
         <p className="text-sm text-zinc-400">No replies yet.</p>
       ) : (
-        replies.map((a) => (
+        orderedReplies.map((a) => (
           <div
             key={String(a._id)}
             className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
