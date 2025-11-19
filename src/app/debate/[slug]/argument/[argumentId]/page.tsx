@@ -134,51 +134,94 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
         )}
       </section>
 
-      {/* Replies */}
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-200 mb-1">
-          Replies
-        </h2>
-        {replies.length === 0 ? (
-          <p className="text-sm text-zinc-400">No replies yet.</p>
-        ) : (
-            replies.map((a) => (
-            <div
-              key={String(a._id)}
-              className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
-              style={{ marginLeft: (a.depth ?? 0) * 16 }}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] uppercase tracking-wide text-zinc-400">
-                  {a.side === "affirmative"
-                    ? "Affirmative"
-                    : a.side === "opposing"
-                    ? "Opposing"
-                    : "Neutral / Context"}
-                </span>
-                {a.createdAt && (
-                  <time className="text-[11px] text-zinc-500">
-                    {new Date(a.createdAt).toLocaleString()}
-                  </time>
-                )}
-              </div>
-            
-              <p className="text-sm text-zinc-100 whitespace-pre-wrap">
-                {a.body}
-              </p>
-            
-              <div className="mt-2">
-                <Link
-                  href={`${basePath}/new-argument?side=${a.side}&parentId=${a._id}`}
-                  className="text-xs text-violet-300 hover:underline"
-                >
-                  Reply to this
-                </Link>
-              </div>
+      
+
+    {/* Replies */}
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold text-zinc-200 mb-1">
+        Replies
+      </h2>
+      {replies.length === 0 ? (
+        <p className="text-sm text-zinc-400">No replies yet.</p>
+      ) : (
+        replies.map((a) => (
+          <div
+            key={String(a._id)}
+            className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
+            style={{ marginLeft: (a.depth ?? 0) * 16 }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] uppercase tracking-wide text-zinc-400">
+                {a.side === "affirmative"
+                  ? "Affirmative"
+                  : a.side === "opposing"
+                  ? "Opposing"
+                  : "Neutral / Context"}
+              </span>
+              {a.createdAt && (
+                <time className="text-[11px] text-zinc-500">
+                  {new Date(a.createdAt).toLocaleString()}
+                </time>
+              )}
             </div>
-          ))
-        )}
-      </section>
+
+            <p className="text-sm text-zinc-100 whitespace-pre-wrap">
+              {a.body}
+            </p>
+
+            {a.evidence && a.evidence.length > 0 && (
+              <details className="mt-2 rounded-lg border border-white/10 bg-zinc-900/70 p-2 text-[11px] text-zinc-200">
+                <summary className="cursor-pointer font-semibold text-zinc-300">
+                  Evidence ({a.evidence.length})
+                </summary>
+                <div className="mt-2 space-y-2">
+                  {a.evidence.map((ev) => (
+                    <div
+                      key={String(ev._id)}
+                      className="rounded bg-zinc-900/80 border border-white/10 p-2"
+                    >
+                      {ev.title && (
+                        <p className="text-[11px] font-semibold text-zinc-100">
+                          {ev.title}
+                        </p>
+                      )}
+                      {ev.quote && (
+                        <p className="mt-1 italic text-[11px] text-zinc-300">
+                          “{ev.quote}”
+                        </p>
+                      )}
+                      <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-zinc-400">
+                        {ev.url && (
+                          <a
+                            href={ev.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="underline"
+                          >
+                            Source
+                          </a>
+                        )}
+                        {ev.locator && <span>Locator: {ev.locator}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+    
+            
+            <div className="mt-2">
+              <Link
+                href={`${basePath}/new-argument?side=${a.side}&parentId=${a._id}`}
+                className="text-xs text-violet-300 hover:underline"
+              >
+                Reply to this
+              </Link>
+            </div>
+          </div>
+        ))
+      )}
+    </section>
 
       {/* Reply to root */}
       <section className="mt-6">
