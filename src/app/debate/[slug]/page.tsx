@@ -104,7 +104,9 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
       {/* Debate Question bar */}
       <section className="border-b border-white/10 bg-zinc-900/80 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-5">
-          <h1 className={`${lusitana.className} text-xl md:text-2xl text-white`}>{debate.question}</h1>
+          <h1 className={`${lusitana.className} text-xl md:text-2xl text-white`}>
+            {debate.question}
+          </h1>
         </div>
       </section>
 
@@ -121,9 +123,6 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
               >
                 Add argument
               </Link>
-              <Link href={`${basePath}/affirmative`} className="text-sm text-violet-300 hover:underline">
-                View all
-              </Link>
             </div>
           </header>
 
@@ -134,9 +133,7 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
               <ArgumentCard
                 key={p.id}
                 post={p}
-                openHref={`${basePath}/argument/${p.id}?side=affirmative`}
-                evidenceHref={`${basePath}/evidence/${p.id}?side=affirmative`}
-                rebuttalsHref={`${basePath}/rebuttals/${p.id}?side=affirmative`}
+                openHref={`${basePath}/argument/${p.id}`} // 🔹 thread page
               />
             ))
           )}
@@ -152,51 +149,42 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
           />
         </section>
 
+        {/* Neutral */}
+        <section className="col-span-12 md:col-span-4 space-y-4">
+          <header className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Neutral / Context</h2>
+            <div className="flex items-center gap-3">
+              <Link
+                href={`${basePath}/new-argument?side=neutral`}
+                className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
+              >
+                Add argument
+              </Link>
+            </div>
+          </header>
 
-        {/*neutral*/}
-          <section className="col-span-12 md:col-span-4 space-y-4">
-            <header className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">Neutral</h2> {/*Context instead? */}
-              <div className="flex items-center gap-3">
-                <Link
-                  href={`${basePath}/new-argument?side=neutral`}
-                  className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
-                >
-                  Add argument
-                </Link>
-                <Link
-                  href={`${basePath}/neutral`}
-                  className="text-sm text-violet-300 hover:underline"
-                >
-                  View all
-                </Link>
-              </div>
-            </header>
+          {neutrals.length === 0 ? (
+            <EmptySide label="No neutral/contextual arguments yet" />
+          ) : (
+            neutrals.map((p) => (
+              <ArgumentCard
+                key={p.id}
+                post={p}
+                openHref={`${basePath}/argument/${p.id}`}
+              />
+            ))
+          )}
 
-            {neutrals.length === 0 ? (
-              <EmptySide label="No neutral/contextual arguments yet" />
-            ) : (
-              neutrals.map((p) => (
-                <ArgumentCard
-                  key={p.id}
-                  post={p}
-                  openHref={`${basePath}/argument/${p.id}?side=neutral`}
-                  evidenceHref={`${basePath}/evidence/${p.id}?side=neutral`}
-                  rebuttalsHref={`${basePath}/rebuttals/${p.id}?side=neutral`}
-                />
-              ))
-            )}
-
-            <SidePager
-              basePath={basePath}
-              side="neutral"
-              current={neutralPage}
-              totalPages={neutralPages}
-              proPage={proPage}
-              conPage={conPage}
-              neutralPage={neutralPage}
-            />
-          </section>
+          <SidePager
+            basePath={basePath}
+            side="neutral"
+            current={neutralPage}
+            totalPages={neutralPages}
+            proPage={proPage}
+            conPage={conPage}
+            neutralPage={neutralPage}
+          />
+        </section>
 
         {/* Opposing */}
         <section className="col-span-12 md:col-span-4 space-y-4">
@@ -209,9 +197,6 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
               >
                 Add argument
               </Link>
-              <Link href={`${basePath}/opposing`} className="text-sm text-violet-300 hover:underline">
-                View all
-              </Link>
             </div>
           </header>
 
@@ -222,9 +207,7 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
               <ArgumentCard
                 key={p.id}
                 post={p}
-                openHref={`${basePath}/argument/${p.id}?side=opposing`}
-                evidenceHref={`${basePath}/evidence/${p.id}?side=opposing`}
-                rebuttalsHref={`${basePath}/rebuttals/${p.id}?side=opposing`}
+                openHref={`${basePath}/argument/${p.id}`}
               />
             ))
           )}

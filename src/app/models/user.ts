@@ -1,4 +1,5 @@
-import mongoose, { Schema, Document, model, models, InferSchemaType } from "mongoose";
+import mongoose, { Schema, Document, model, models, InferSchemaType, Types } from "mongoose";
+import User from "@/app/models/user";
 
 interface UserPreferences {
   theme?: "light" | "dark";

@@ -17,9 +17,11 @@ type PageProps = {
 export default function NewArgumentForm({
   slug,
   initialSide,
+  parentId,
 }: {
   slug: string;
   initialSide: Side;
+  parentId?: string;
 }) {
   const router = useRouter();
   const [side, setSide] = useState<Side>(initialSide);
@@ -75,11 +77,15 @@ export default function NewArgumentForm({
         fd.set("body", body);
         fd.set("evidence", JSON.stringify(cleaned));
 
+        if (parentId) {
+          fd.set("parentId", parentId);
+        }
+
         startTransition(async () => {
           try {
             const res = (await createArgument(fd)) as CreateArgumentResult | undefined;
             if (res?.ok) {
-              router.push(`/debate/${slug}`);
+              router.push(`/debate/${slug}/argument/${res.id}`);
             } else {
               setError(res?.error ?? "Failed to create argument");
             }
