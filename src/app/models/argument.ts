@@ -11,14 +11,15 @@ const EvidenceSchema = new Schema({
 }, { _id: true });
 
 const VoteAggregationSchema = new Schema(
-  {
-    sum: { type: Number, default: 0 },
+  { // Should be enough information to figure out anything else necessary?
+    sum: { type: Number, default: 0 }, 
     count: { type: Number, default: 0 },
   },
 
   { _id: false }
 );
 
+//in general, in MongoDB, IDs are unique across the whole collection
 const ArgumentSchema = new Schema({
   debateId: { type: Schema.Types.ObjectId, ref: "Debate", index: true, required: true },
   side: { type: String, enum: ["affirmative", "opposing", "neutral"], index: true, required: true },
@@ -36,8 +37,13 @@ const ArgumentSchema = new Schema({
   targetEvidenceId: { type: Schema.Types.ObjectId },
 
   summary: String,       // Short preview text for debate listing
-  score: { type: Number, default: 0 },   // describes the soundness and and factual validity of an argument
+  //score: { type: Number, default: 0 },   // describes the soundness and and factual validity of an argument
   replyCount: { type: Number, default: 0 },
+
+  voteAggregation: {
+    soundness: { type: VoteAggregationSchema, default: () => ({}) },
+    factuality: { type: VoteAggregationSchema, default: () => ({}) },
+  },
 
   authorId: { type: Schema.Types.ObjectId, ref: "User", index: true },
 }, { timestamps: true });
