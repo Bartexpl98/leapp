@@ -8,8 +8,8 @@ const ArgumentVoteSchema = new Schema(
     debateId: { type: Schema.Types.ObjectId, ref: "Debate", required: true, index: true }, // might be useful for analytics
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
 
-    soundness: { type: Number, enum: [-1, 1], required: true },
-    factuality: { type: Number, enum: [-1, 1], required: true },
+    soundness: { type: Number, enum: [-1, 1], default: null},
+    factuality: { type: Number, enum: [-1, 1], default: null },
 
   },
   { timestamps: true }
