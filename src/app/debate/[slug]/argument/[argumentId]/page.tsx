@@ -63,12 +63,36 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
   if (!root) return notFound();
 
   const thread = await Argument.find({
-    $or: [{ _id: root._id }, { rootId }],
-  })
-    .sort({ createdAt: 1 })
-    .lean<ArgumentDoc[]>();
+  $or: [{ _id: root._id }, { rootId }],
+}).sort({ createdAt: 1 }).lean<ArgumentDoc[]>();
 
-  const replies = thread.filter((a) => String(a._id) !== String(root._id));
+// Build a parent -> children map so we can order replies as a tree
+  const rootKey = String(root._id);
+  const childrenMap = new Map<string, ArgumentDoc[]>();
+
+  for (const node of thread) {
+    const nodeKey = String(node._id);
+    if (nodeKey === rootKey) continue; // skip root
+
+    const parentKey = node.parentId ? String(node.parentId) : rootKey;
+    const bucket = childrenMap.get(parentKey) ?? [];
+    bucket.push(node);
+    childrenMap.set(parentKey, bucket);
+  }
+
+// Depth-first traversal
+  const orderedReplies: ArgumentDoc[] = [];
+
+  function dfs(parentKey: string) {
+    const children = childrenMap.get(parentKey);
+    if (!children) return;
+    for (const child of children) {
+      orderedReplies.push(child);
+      dfs(String(child._id));
+    }
+  }
+
+  dfs(rootKey);
 
   const basePath = `/debate/${debate.slug}`;
 
@@ -172,8 +196,36 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                   </time>
                 )}
               </div>
-
-              <p className="text-sm text-zinc-100 whitespace-pre-wrap">{a.body}</p>
+      </section>
+      
+    {/* Replies */}
+    <section className="space-y-3">
+      <h2 className="text-sm font-semibold text-zinc-200 mb-1">
+        Replies
+      </h2>
+      {orderedReplies.length === 0 ? (
+        <p className="text-sm text-zinc-400">No replies yet.</p>
+      ) : (
+        orderedReplies.map((a) => (
+          <div
+            key={String(a._id)}
+            className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
+            style={{ marginLeft: (a.depth ?? 0) * 16 }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] uppercase tracking-wide text-zinc-400">
+                {a.side === "affirmative"
+                  ? "Affirmative"
+                  : a.side === "opposing"
+                  ? "Opposing"
+                  : "Neutral / Context"}
+              </span>
+              {a.createdAt && (
+                <time className="text-[11px] text-zinc-500">
+                  {new Date(a.createdAt).toLocaleString()}
+                </time>
+              )}
+            </div>
 
               <div className="mt-2">
                 <ArgumentVoteControls
@@ -228,7 +280,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                   </div>
                 </details>
               )}
-              
+
 
               <div className="mt-2">
                 <Link
