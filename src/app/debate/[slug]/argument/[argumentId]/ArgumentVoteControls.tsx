@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type VoteValue = 1 | -1 | null;
 
-type VoteAgg = {
+type VoteAggregate = {
   soundness: { sum: number; count: number };
   factuality: { sum: number; count: number };
 };
@@ -12,16 +12,16 @@ type VoteAgg = {
 export default function ArgumentVoteControls({
   argumentId,
   initialMyVote,
-  initialVoteAgg,
+  initialVoteAggregate,
   disableFactuality,
 }: {
   argumentId: string;
   initialMyVote: { soundness: VoteValue; factuality: VoteValue };
-  initialVoteAgg: VoteAgg;
+  initialVoteAggregate: VoteAggregate;
   disableFactuality?: boolean;
 }) {
   const [myVote, setMyVote] = useState(initialMyVote);
-  const [voteAgg, setVoteAgg] = useState(initialVoteAgg);
+  const [voteAggregate, setVoteAggregate] = useState(initialVoteAggregate);
   const [loading, setLoading] = useState(false);
 
   async function submit(payload: { soundness?: VoteValue; factuality?: VoteValue }) {
@@ -41,7 +41,7 @@ export default function ArgumentVoteControls({
       }
 
       setMyVote(data.myVote);
-      setVoteAgg(data.voteAgg);
+      setVoteAggregate(data.voteAggregate);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function ArgumentVoteControls({
           className={`rounded px-2 py-1 border border-white/10 ${myVote.soundness === -1 ? "bg-white/10" : "bg-transparent"}`}>
           -1
         </button>
-        <span className="text-zinc-400">{voteAgg.soundness.sum}</span>
+        <span className="text-zinc-400">{voteAggregate.soundness.sum}</span>
       </div>
 
       <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function ArgumentVoteControls({
           title={disableFactuality ? "Add evidence to vote on factuality" : ""}>
           -1
         </button>
-        <span className="text-zinc-400">{voteAgg.factuality.sum}</span>
+        <span className="text-zinc-400">{voteAggregate.factuality.sum}</span>
       </div>
     </div>
   );
