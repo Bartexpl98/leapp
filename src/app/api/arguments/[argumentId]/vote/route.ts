@@ -13,8 +13,9 @@ type VoteValue = 1 | -1 | null;
 
 export async function POST(
   req: Request,
-  { params }: { params: { argumentId: string } }
+  { params }: { params: Promise<{ argumentId: string }> }
 ) {
+  const { argumentId: argumentIdParam } = await params;
   try {
     await dbConnect();
 
@@ -43,10 +44,10 @@ export async function POST(
     }
 
     // Validate argumentId
-    if (!mongoose.Types.ObjectId.isValid(params.argumentId)) {
+    if (!mongoose.Types.ObjectId.isValid(argumentIdParam)) {
       return NextResponse.json({ message: "Invalid argument id" }, { status: 400 });
     }
-    const argumentId = new mongoose.Types.ObjectId(params.argumentId);
+    const argumentId = new mongoose.Types.ObjectId(argumentIdParam);
 
     // Parse JSON
     const body = await req.json().catch(() => null) as
@@ -143,11 +144,15 @@ export async function POST(
           .session(mongoSession)
           .select("voteAggregate");
 
+        const safeVoteAggregate = updated?.voteAggregate ?? {
+            soundness: { sum: 0, count: 0 },
+            factuality: { sum: 0, count: 0 },};
+        
         return {
           status: 200,
           data: {
             myVote: { soundness: nextSound, factuality: nextFact },
-            voteAggregate: updated?.voteAggregate,
+            voteAggregate: safeVoteAggregate,
           },
         };
       });
