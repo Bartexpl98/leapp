@@ -11,20 +11,22 @@ export default async function NewArgumentPage({
   params,
   searchParams,
 }: {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
+  const sp = searchParams ? await searchParams : undefined;
 
   const sideParam =
-    typeof searchParams?.side === "string"
-      ? searchParams.side.toLowerCase()
+    typeof sp?.side === "string"
+      ? sp.side.toLowerCase()
       : "";
 
   const parentId =
-    typeof searchParams?.parentId === "string"
-      ? searchParams.parentId
+    typeof sp?.parentId === "string"
+      ? sp.parentId
       : undefined;
+
 
 
   await dbConnect();
