@@ -11,6 +11,11 @@ import { authOptions } from "@/app/api/auth-options";
 
 type VoteValue = 1 | -1 | null;
 
+const emptyAggregate = {
+  soundness: { sum: 0, count: 0 },
+  factuality: { sum: 0, count: 0 },
+};
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ argumentId: string }> }
@@ -43,6 +48,10 @@ export async function POST(
       userObjectId = user._id;
     }
 
+    if (!userObjectId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     // Validate argumentId
     if (!mongoose.Types.ObjectId.isValid(argumentIdParam)) {
       return NextResponse.json({ message: "Invalid argument id" }, { status: 400 });
@@ -50,7 +59,7 @@ export async function POST(
     const argumentId = new mongoose.Types.ObjectId(argumentIdParam);
 
     // Parse JSON
-    const body = await req.json().catch(() => null) as
+    const body = (await req.json().catch(() => null)) as
       | { soundness?: VoteValue; factuality?: VoteValue }
       | null;
 
@@ -97,7 +106,6 @@ export async function POST(
         const nextSound: VoteValue = soundness === undefined ? prevSound : soundness === prevSound ? null : soundness;
         const nextFact: VoteValue = factuality === undefined ? prevFact : factuality === prevFact ? null : factuality;
 
-      
         const deltaSoundSum = (nextSound ?? 0) - (prevSound ?? 0);
         const deltaFactSum = (nextFact ?? 0) - (prevFact ?? 0);
 
@@ -116,12 +124,12 @@ export async function POST(
         } else if (!existing) {
           await ArgumentVote.create(
             [{
-              argumentId: argument._id,
-              debateId: argument.debateId,
-              userId: userObjectId,
-              soundness: nextSound,
-              factuality: nextFact,
-            }],
+                argumentId: argument._id,
+                debateId: argument.debateId,
+                userId: userObjectId,
+                soundness: nextSound,
+                factuality: nextFact,
+              },],
             { session: mongoSession }
           );
         } else {
@@ -140,19 +148,21 @@ export async function POST(
           await Argument.updateOne({ _id: argument._id }, { $inc: inc }).session(mongoSession);
         }
 
-        const updated = await Argument.findById(argument._id)
-          .session(mongoSession)
-          .select("voteAggregate");
+        const current = (argument as any).voteAggregate ?? emptyAggregate;
+        const nextAggregate = {
+          soundness: {
+            sum: (current.soundness?.sum ?? 0) + deltaSoundSum,
+            count: (current.soundness?.count ?? 0) + deltaSoundCount,},
+          factuality: {
+            sum: (current.factuality?.sum ?? 0) + deltaFactSum,
+            count: (current.factuality?.count ?? 0) + deltaFactCount,},
+        };
 
-        const safeVoteAggregate = updated?.voteAggregate ?? {
-            soundness: { sum: 0, count: 0 },
-            factuality: { sum: 0, count: 0 },};
-        
         return {
           status: 200,
           data: {
             myVote: { soundness: nextSound, factuality: nextFact },
-            voteAggregate: safeVoteAggregate,
+            voteAggregate: nextAggregate,
           },
         };
       });
@@ -161,11 +171,9 @@ export async function POST(
     } finally {
       mongoSession.endSession();
     }
-
   } catch (err: unknown) {
     console.error("Vote error:", err);
     const message = err instanceof Error ? err.message : "Server error";
     return NextResponse.json({ message }, { status: 500 });
   }
-
 }

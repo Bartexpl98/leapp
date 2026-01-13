@@ -8,6 +8,10 @@ type VoteAggregate = {
   soundness: { sum: number; count: number };
   factuality: { sum: number; count: number };
 };
+const emptyAggregate: VoteAggregate = {
+  soundness: { sum: 0, count: 0 },
+  factuality: { sum: 0, count: 0 },
+};
 
 export default function ArgumentVoteControls({
   argumentId,
@@ -20,11 +24,51 @@ export default function ArgumentVoteControls({
   initialVoteAggregate: VoteAggregate;
   disableFactuality?: boolean;
 }) {
-  const [myVote, setMyVote] = useState(initialMyVote);
-  const [voteAggregate, setVoteAggregate] = useState(initialVoteAggregate);
+  const [myVote, setMyVote] = useState(initialMyVote ?? { soundness: null, factuality: null });
+  const [voteAggregate, setVoteAggregate] = useState(initialVoteAggregate ?? emptyAggregate);
   const [loading, setLoading] = useState(false);
 
+  function applyOptimistic(payload: { soundness?: VoteValue; factuality?: VoteValue }) {
+    const previous = myVote;
+
+    const nextSound = payload.soundness === undefined ? previous.soundness : payload.soundness === previous.soundness ? null : payload.soundness;
+
+    const nextFact = payload.factuality === undefined ? previous.factuality : payload.factuality === previous.factuality ? null : payload.factuality;
+
+    const deltaSoundSum = (nextSound ?? 0) - (previous.soundness ?? 0);
+    const deltaFactSum = (nextFact ?? 0) - (previous.factuality ?? 0);
+
+    const deltaSoundCount =previous.soundness === null && nextSound !== null ? 1 : previous.soundness !== null && nextSound === null ? -1 : 0;
+
+    const deltaFactCount = previous.factuality === null && nextFact !== null ? 1 : previous.factuality !== null && nextFact === null ? -1 : 0;
+
+    setMyVote({soundness: nextSound, factuality: nextFact});
+
+    setVoteAggregate((cur) => ({
+      soundness: {
+        sum: (cur.soundness?.sum ?? 0) + deltaSoundSum,
+        count: (cur.soundness?.count ?? 0) + deltaSoundCount,
+      },
+      factuality: {
+        sum: (cur.factuality?.sum ?? 0) + deltaFactSum,
+        count: (cur.factuality?.count ?? 0) + deltaFactCount,
+      },
+    }));
+
+    return previous; // for rollback
+  }
+
+  function rollback(previousVote: { soundness: VoteValue; factuality: VoteValue }, previousAggregate: VoteAggregate) {
+    setMyVote(previousVote);
+    setVoteAggregate(previousAggregate);
+  }
+
   async function submit(payload: { soundness?: VoteValue; factuality?: VoteValue }) {
+    const previousVote = myVote;
+    const previousAggregate = voteAggregate;
+
+    applyOptimistic(payload);
+
     try {
       setLoading(true);
       const res = await fetch(`/api/arguments/${argumentId}/vote`, {
@@ -33,15 +77,19 @@ export default function ArgumentVoteControls({
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
+        rollback(previousVote, previousAggregate);
         alert(data?.message || "Vote failed");
         return;
       }
 
-      setMyVote(data.myVote);
-      setVoteAggregate(data.voteAggregate);
+      if (data?.myVote) setMyVote(data.myVote);
+      if (data?.voteAggregate) setVoteAggregate(data.voteAggregate);
+    } catch {
+      rollback(previousVote, previousAggregate);
+      alert("Vote failed!");
     } finally {
       setLoading(false);
     }
