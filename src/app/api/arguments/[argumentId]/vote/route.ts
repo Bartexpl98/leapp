@@ -148,7 +148,8 @@ export async function POST(
           await Argument.updateOne({ _id: argument._id }, { $inc: inc }).session(mongoSession);
         }
 
-        const current = (argument as any).voteAggregate ?? emptyAggregate;
+        const current = argument?.voteAggregate ?? emptyAggregate;
+
         const nextAggregate = {
           soundness: {
             sum: (current.soundness?.sum ?? 0) + deltaSoundSum,
