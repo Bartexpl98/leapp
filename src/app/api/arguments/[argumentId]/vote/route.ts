@@ -89,10 +89,14 @@ export async function POST(
       const result = await mongoSession.withTransaction(async () => {
         const argument = await Argument.findById(argumentId)
           .session(mongoSession)
-          .select("_id debateId evidence voteAggregate");
+          .select("_id debateId evidence voteAggregate authorId");
 
         if (!argument) {
           return { status: 404, data: { message: "Argument not found" } };
+        }
+
+        if (argument.authorId && String(argument.authorId) === String(userObjectId)) {
+          return {status: 403, data: {message: "You can't vote on your own argument"}};
         }
 
         const existing = await ArgumentVote.findOne({
