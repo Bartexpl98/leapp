@@ -18,11 +18,16 @@ export default function ArgumentVoteControls({
   initialMyVote,
   initialVoteAggregate,
   disableFactuality,
+  disabled,
+  disabledReason,
 }: {
   argumentId: string;
   initialMyVote: { soundness: VoteValue; factuality: VoteValue };
   initialVoteAggregate: VoteAggregate;
   disableFactuality?: boolean;
+  disabled?: boolean;
+  disabledReason?: string;
+
 }) {
   const [myVote, setMyVote] = useState(initialMyVote ?? { soundness: null, factuality: null });
   const [voteAggregate, setVoteAggregate] = useState(initialVoteAggregate ?? emptyAggregate);
@@ -64,6 +69,11 @@ export default function ArgumentVoteControls({
   }
 
   async function submit(payload: { soundness?: VoteValue; factuality?: VoteValue }) {
+    if (disabled) {
+      if (disabledReason) alert(disabledReason);
+        return;
+    }
+
     const previousVote = myVote;
     const previousAggregate = voteAggregate;
 
@@ -100,13 +110,13 @@ export default function ArgumentVoteControls({
       <div className="flex items-center gap-2">
         <span className="text-zinc-400">Soundness</span>
         <button
-          disabled={loading}
+          disabled={loading || disabled}
           onClick={() => submit({ soundness: 1 })}
           className={`rounded px-2 py-1 border border-white/10 ${myVote.soundness === 1 ? "bg-white/10" : "bg-transparent"}`}>
           +1
         </button>
         <button
-          disabled={loading}
+          disabled={loading || disabled}
           onClick={() => submit({ soundness: -1 })}
           className={`rounded px-2 py-1 border border-white/10 ${myVote.soundness === -1 ? "bg-white/10" : "bg-transparent"}`}>
           -1
@@ -117,14 +127,14 @@ export default function ArgumentVoteControls({
       <div className="flex items-center gap-2">
         <span className="text-zinc-400">Factuality</span>
         <button
-          disabled={loading || disableFactuality}
+          disabled={loading || disableFactuality || disabled}
           onClick={() => submit({ factuality: 1 })}
           className={`rounded px-2 py-1 border border-white/10 ${myVote.factuality === 1 ? "bg-white/10" : "bg-transparent"} ${disableFactuality ? "opacity-40 cursor-not-allowed" : ""}`}
           title={disableFactuality ? "Add evidence to vote on factuality" : ""}>
           +1
         </button>
         <button
-          disabled={loading || disableFactuality}
+          disabled={loading || disableFactuality || disabled}
           onClick={() => submit({ factuality: -1 })}
           className={`rounded px-2 py-1 border border-white/10 ${myVote.factuality === -1 ? "bg-white/10" : "bg-transparent"} ${disableFactuality ? "opacity-40 cursor-not-allowed" : ""}`}
           title={disableFactuality ? "Add evidence to vote on factuality" : ""}>
@@ -132,6 +142,9 @@ export default function ArgumentVoteControls({
         </button>
         <span className="text-zinc-400">{voteAggregate.factuality.sum}</span>
       </div>
+  
+      {disabled && disabledReason && (
+      <p className="text-[11px] text-zinc-500 mt-1">{disabledReason}</p>)}
     </div>
   );
 }

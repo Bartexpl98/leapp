@@ -6,6 +6,9 @@ import Argument from "@/app/models/argument";
 import NewArgumentForm from "../../new-argument/NewArgumentForm";
 import type { Types } from "mongoose";
 import ArgumentVoteControls from "./ArgumentVoteControls";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth-options";
+import mongoose from "mongoose";
 
 export const dynamic = "force-dynamic";
 
@@ -35,10 +38,19 @@ type ArgumentDoc = {
     soundness: { sum: number; count: number };
     factuality: { sum: number; count: number };
   };
+  authorId?: Types.ObjectId;
 };
 
 export default async function ArgumentThreadPage({ params }: PageProps) {
   const { slug, argumentId } = await params;
+
+  const authSession = await getServerSession(authOptions);
+
+  const viewerObjectId =
+    typeof authSession?.user?.id === "string" &&
+    mongoose.Types.ObjectId.isValid(authSession.user.id)
+      ? new mongoose.Types.ObjectId(authSession.user.id)
+      : null;
 
   await dbConnect();
 
@@ -64,7 +76,9 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
   const thread = await Argument.find({
     $or: [{ _id: root._id }, { rootId }],
-  }).sort({ createdAt: 1 }).lean<ArgumentDoc[]>();
+  })
+    .sort({ createdAt: 1 })
+    .lean<ArgumentDoc[]>();
 
   // Build a parent -> children map so we can order replies as a tree
   const rootKey = String(root._id);
@@ -95,6 +109,21 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
   dfs(rootKey);
 
   const basePath = `/debate/${debate.slug}`;
+
+  function votingStateFor(authorId?: Types.ObjectId) {
+    if (!viewerObjectId) {
+      return {disabled: true, disabledReason: "Sign in to vote."};
+    }
+    if (authorId && String(authorId) === String(viewerObjectId)) {
+      return {
+        disabled: true,
+        disabledReason:"You can’t vote on your own argument.",
+      };
+    }
+    return {disabled: false, disabledReason: ""};
+  }
+
+  const rootVoting = votingStateFor(root.authorId);
 
   return (
     <main className="mx-auto max-w-3xl px-4 md:px-6 py-6 space-y-6">
@@ -132,6 +161,8 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
             }
           }
           disableFactuality={!root.evidence || root.evidence.length === 0}
+          disabled={rootVoting.disabled}
+          disabledReason={rootVoting.disabledReason}
         />
 
         {/* Evidence list */}
@@ -176,93 +207,101 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
         {orderedReplies.length === 0 ? (
           <p className="text-sm text-zinc-400">No replies yet.</p>
         ) : (
-          orderedReplies.map((a) => (
-            <div
-              key={String(a._id)}
-              className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
-              style={{ marginLeft: (a.depth ?? 0) * 16 }}
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] uppercase tracking-wide text-zinc-400">
-                  {a.side === "affirmative"
-                    ? "Affirmative"
-                    : a.side === "opposing"
-                    ? "Opposing"
-                    : "Neutral / Context"}
-                </span>
-                {a.createdAt && (
-                  <time className="text-[11px] text-zinc-500">
-                    {new Date(a.createdAt).toLocaleString()}
-                  </time>
-                )}
-              </div>
+          orderedReplies.map((a) => {
+            const replyVoting = votingStateFor(a.authorId);
 
-              <p className="text-sm text-zinc-100 whitespace-pre-wrap">{a.body}</p>
+            return (
+              <div
+                key={String(a._id)}
+                className="rounded-xl border border-white/10 bg-zinc-900/60 p-3"
+                style={{ marginLeft: (a.depth ?? 0) * 16 }}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] uppercase tracking-wide text-zinc-400">
+                    {a.side === "affirmative"
+                      ? "Affirmative"
+                      : a.side === "opposing"
+                      ? "Opposing"
+                      : "Neutral / Context"}
+                  </span>
+                  {a.createdAt && (
+                    <time className="text-[11px] text-zinc-500">
+                      {new Date(a.createdAt).toLocaleString()}
+                    </time>
+                  )}
+                </div>
 
-              <div className="mt-2">
-                <ArgumentVoteControls
-                  argumentId={String(a._id)}
-                  initialMyVote={{ soundness: null, factuality: null }}
-                  initialVoteAggregate={
-                    a.voteAggregate ?? {
-                      soundness: { sum: 0, count: 0 },
-                      factuality: { sum: 0, count: 0 },
+                <p className="text-sm text-zinc-100 whitespace-pre-wrap">
+                  {a.body}
+                </p>
+
+                <div className="mt-2">
+                  <ArgumentVoteControls
+                    argumentId={String(a._id)}
+                    initialMyVote={{ soundness: null, factuality: null }}
+                    initialVoteAggregate={
+                      a.voteAggregate ?? {
+                        soundness: { sum: 0, count: 0 },
+                        factuality: { sum: 0, count: 0 },
+                      }
                     }
-                  }
-                  disableFactuality={!a.evidence || a.evidence.length === 0}
-                />
-              </div>
+                    disableFactuality={!a.evidence || a.evidence.length === 0}
+                    disabled={replyVoting.disabled}
+                    disabledReason={replyVoting.disabledReason}
+                  />
+                </div>
 
-              {a.evidence && a.evidence.length > 0 && (
-                <details className="mt-2 rounded-lg border border-white/10 bg-zinc-900/70 p-2 text-[11px] text-zinc-200">
-                  <summary className="cursor-pointer font-semibold text-zinc-300">
-                    Evidence ({a.evidence.length})
-                  </summary>
-                  <div className="mt-2 space-y-2">
-                    {a.evidence.map((ev) => (
-                      <div
-                        key={String(ev._id)}
-                        className="rounded bg-zinc-900/80 border border-white/10 p-2"
-                      >
-                        {ev.title && (
-                          <p className="text-[11px] font-semibold text-zinc-100">
-                            {ev.title}
-                          </p>
-                        )}
-                        {ev.quote && (
-                          <p className="mt-1 italic text-[11px] text-zinc-300">
-                            “{ev.quote}”
-                          </p>
-                        )}
-                        <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-zinc-400">
-                          {ev.url && (
-                            <a
-                              href={ev.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="underline"
-                            >
-                              Source
-                            </a>
+                {a.evidence && a.evidence.length > 0 && (
+                  <details className="mt-2 rounded-lg border border-white/10 bg-zinc-900/70 p-2 text-[11px] text-zinc-200">
+                    <summary className="cursor-pointer font-semibold text-zinc-300">
+                      Evidence ({a.evidence.length})
+                    </summary>
+                    <div className="mt-2 space-y-2">
+                      {a.evidence.map((ev) => (
+                        <div
+                          key={String(ev._id)}
+                          className="rounded bg-zinc-900/80 border border-white/10 p-2"
+                        >
+                          {ev.title && (
+                            <p className="text-[11px] font-semibold text-zinc-100">
+                              {ev.title}
+                            </p>
                           )}
-                          {ev.locator && <span>Locator: {ev.locator}</span>}
+                          {ev.quote && (
+                            <p className="mt-1 italic text-[11px] text-zinc-300">
+                              “{ev.quote}”
+                            </p>
+                          )}
+                          <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-zinc-400">
+                            {ev.url && (
+                              <a
+                                href={ev.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="underline"
+                              >
+                                Source
+                              </a>
+                            )}
+                            {ev.locator && <span>Locator: {ev.locator}</span>}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
+                      ))}
+                    </div>
+                  </details>
+                )}
 
-              <div className="mt-2">
-                <Link
-                  href={`${basePath}/new-argument?side=${a.side}&parentId=${a._id}`}
-                  className="text-xs text-violet-300 hover:underline"
-                >
-                  Reply to this
-                </Link>
+                <div className="mt-2">
+                  <Link
+                    href={`${basePath}/new-argument?side=${a.side}&parentId=${a._id}`}
+                    className="text-xs text-violet-300 hover:underline"
+                  >
+                    Reply to this
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </section>
 
