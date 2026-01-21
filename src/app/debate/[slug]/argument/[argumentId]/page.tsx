@@ -48,9 +48,10 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
   const viewerObjectId =
     typeof authSession?.user?.id === "string" &&
-    mongoose.Types.ObjectId.isValid(authSession.user.id)
-      ? new mongoose.Types.ObjectId(authSession.user.id)
-      : null;
+    mongoose.Types.ObjectId.isValid(authSession.user.id) ? new mongoose.Types.ObjectId(authSession.user.id) : null;
+
+  const isSignedIn = !!authSession?.user;
+
 
   await dbConnect();
 
@@ -151,20 +152,6 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
         <p className="text-sm text-zinc-100 whitespace-pre-wrap">{root.body}</p>
 
-        <ArgumentVoteControls
-          argumentId={String(root._id)}
-          initialMyVote={{ soundness: null, factuality: null }}
-          initialVoteAggregate={
-            root.voteAggregate ?? {
-              soundness: { sum: 0, count: 0 },
-              factuality: { sum: 0, count: 0 },
-            }
-          }
-          disableFactuality={!root.evidence || root.evidence.length === 0}
-          disabled={rootVoting.disabled}
-          disabledReason={rootVoting.disabledReason}
-        />
-
         {/* Evidence list */}
         {root.evidence && root.evidence.length > 0 && (
           <div className="mt-3 space-y-2">
@@ -199,6 +186,20 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
             </ul>
           </div>
         )}
+
+        <ArgumentVoteControls
+          argumentId={String(root._id)}
+          initialMyVote={{ soundness: null, factuality: null }}
+          initialVoteAggregate={
+            root.voteAggregate ?? {
+              soundness: { sum: 0, count: 0 },
+              factuality: { sum: 0, count: 0 },
+            }
+          }
+          disableFactuality={!root.evidence || root.evidence.length === 0}
+          disabled={rootVoting.disabled}
+          disabledReason={rootVoting.disabledReason}
+        />
       </section>
 
       {/* Replies */}
@@ -234,22 +235,6 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                 <p className="text-sm text-zinc-100 whitespace-pre-wrap">
                   {a.body}
                 </p>
-
-                <div className="mt-2">
-                  <ArgumentVoteControls
-                    argumentId={String(a._id)}
-                    initialMyVote={{ soundness: null, factuality: null }}
-                    initialVoteAggregate={
-                      a.voteAggregate ?? {
-                        soundness: { sum: 0, count: 0 },
-                        factuality: { sum: 0, count: 0 },
-                      }
-                    }
-                    disableFactuality={!a.evidence || a.evidence.length === 0}
-                    disabled={replyVoting.disabled}
-                    disabledReason={replyVoting.disabledReason}
-                  />
-                </div>
 
                 {a.evidence && a.evidence.length > 0 && (
                   <details className="mt-2 rounded-lg border border-white/10 bg-zinc-900/70 p-2 text-[11px] text-zinc-200">
@@ -292,6 +277,22 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                 )}
 
                 <div className="mt-2">
+                  <ArgumentVoteControls
+                    argumentId={String(a._id)}
+                    initialMyVote={{ soundness: null, factuality: null }}
+                    initialVoteAggregate={
+                      a.voteAggregate ?? {
+                        soundness: { sum: 0, count: 0 },
+                        factuality: { sum: 0, count: 0 },
+                      }
+                    }
+                    disableFactuality={!a.evidence || a.evidence.length === 0}
+                    disabled={replyVoting.disabled}
+                    disabledReason={replyVoting.disabledReason}
+                  />
+                </div>
+
+                <div className="mt-2">
                   <Link
                     href={`${basePath}/new-argument?side=${a.side}&parentId=${a._id}`}
                     className="text-xs text-violet-300 hover:underline"
@@ -310,11 +311,33 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
         <h2 className="text-sm font-semibold text-zinc-200 mb-2">
           Reply to this argument
         </h2>
-        <NewArgumentForm
-          slug={debate.slug}
-          initialSide={root.side}
-          parentId={String(root._id)}
-        />
+
+        {isSignedIn ? (
+          <NewArgumentForm
+            slug={debate.slug}
+            initialSide={root.side}
+            parentId={String(root._id)}/>
+        ): (
+          <div className="rounded-2xl border border-white/10 bg-zinc-900/70 p-4 space-y-3">
+            <p className="text-sm text-zinc-300">
+              You need an account to reply.
+            </p>
+        
+            <div className="flex gap-2">
+              <Link
+                href="/api/auth/signin"
+                className="inline-flex items-center rounded-md bg-white/10 px-3 py-2 text-sm text-zinc-100 hover:bg-white/15 border border-white/10">
+                Sign in
+              </Link>
+        
+              <Link
+                href="/register"
+                className="inline-flex items-center rounded-md px-3 py-2 text-sm text-violet-300 hover:underline">
+                Create account
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );
