@@ -5,8 +5,8 @@ import Topic from "@/app/models/topic";
 import { Types } from "mongoose";
 import SortSelect from "./SortSelect";
 
-export const dynamic = 'force-dynamic';
-
+//export const dynamic = 'force-dynamic';
+export const revalidate = 30;
 //should these be separate files?
 type TopicLean = {
   _id: Types.ObjectId;

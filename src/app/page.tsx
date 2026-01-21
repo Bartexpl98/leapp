@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, MessageSquare, CheckCircle2, Lightbulb } from 'lucide-react';
 import DateCard from './components/ui/DateCard'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default function Page() {
   return (
