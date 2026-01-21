@@ -325,7 +325,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
         
             <div className="flex gap-2">
               <Link
-                href="/api/auth/signin"
+                href="/signin"
                 className="inline-flex items-center rounded-md bg-white/10 px-3 py-2 text-sm text-zinc-100 hover:bg-white/15 border border-white/10">
                 Sign in
               </Link>
