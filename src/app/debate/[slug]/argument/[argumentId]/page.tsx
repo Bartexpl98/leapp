@@ -12,6 +12,14 @@ import mongoose from "mongoose";
 
 export const dynamic = "force-dynamic";
 
+type AuthorLean = {
+  _id: Types.ObjectId;
+  name?: string;
+  nickname?: string;
+};
+
+
+
 type PageProps = {
   params: Promise<{ slug: string; argumentId: string }>;
 };
@@ -38,8 +46,18 @@ type ArgumentDoc = {
     soundness: { sum: number; count: number };
     factuality: { sum: number; count: number };
   };
-  authorId?: Types.ObjectId;
+  authorId?: Types.ObjectId | AuthorLean;
 };
+
+function getAuthor(authorId?: Types.ObjectId | AuthorLean) {
+  if (!authorId) return null;
+
+  if (typeof authorId === "object" && "_id" in authorId) {
+    return authorId as AuthorLean;
+  }
+
+  return { _id: authorId as Types.ObjectId };
+}
 
 export default async function ArgumentThreadPage({ params }: PageProps) {
   const { slug, argumentId } = await params;
@@ -61,7 +79,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
   if (!debate) return notFound();
 
-  const node = await Argument.findById(argumentId).lean<ArgumentDoc | null>();
+  const node = await Argument.findById(argumentId).populate("authorId", "name nickname").lean<ArgumentDoc | null>();
   if (!node) return notFound();
 
   if (String(node.debateId) !== String(debate._id)) return notFound();
@@ -70,7 +88,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
   const root =
     node.rootId && String(node.rootId) !== String(node._id)
-      ? await Argument.findById(rootId).lean<ArgumentDoc | null>()
+      ? await Argument.findById(rootId).populate("authorId", "name nickname").lean<ArgumentDoc | null>()
       : node;
 
   if (!root) return notFound();
@@ -79,6 +97,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
     $or: [{ _id: root._id }, { rootId }],
   })
     .sort({ createdAt: 1 })
+    .populate("authorId", "name nickname")
     .lean<ArgumentDoc[]>();
 
   // Build a parent -> children map so we can order replies as a tree
@@ -111,20 +130,42 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
 
   const basePath = `/debate/${debate.slug}`;
 
-  function votingStateFor(authorId?: Types.ObjectId) {
-    if (!viewerObjectId) {
-      return {disabled: true, disabledReason: "Sign in to vote."};
-    }
-    if (authorId && String(authorId) === String(viewerObjectId)) {
-      return {
-        disabled: true,
-        disabledReason:"You can’t vote on your own argument.",
-      };
-    }
-    return {disabled: false, disabledReason: ""};
+  function authorObjectId(authorId?: Types.ObjectId | AuthorLean) {
+    if (!authorId) return null;
+    if (typeof authorId === "object" && "_id" in authorId) return authorId._id;
+    return authorId;
   }
 
+  function authorLabel(authorId?: Types.ObjectId | AuthorLean) {
+    if (!authorId) return "User";
+  
+    if (typeof authorId === "object" && "nickname" in authorId) {
+      return authorId.nickname
+        ? `@${authorId.nickname}`
+        : authorId.name ?? "User";
+    }
+
+  return "User";
+}
+
+  function votingStateFor(authorId?: Types.ObjectId | AuthorLean) {
+    const authorIdObj = authorObjectId(authorId);
+
+    if (!viewerObjectId) {
+      return { disabled: true, disabledReason: "Sign in to vote." };
+    }
+
+    if (authorIdObj && String(authorIdObj) === String(viewerObjectId)) {
+      return { disabled: true, disabledReason: "You can’t vote on your own argument." };
+    }
+
+    return { disabled: false, disabledReason: "" };
+  }
+
+
   const rootVoting = votingStateFor(root.authorId);
+  const rootAuthor = getAuthor(root.authorId);
+
 
   return (
     <main className="mx-auto max-w-3xl px-4 md:px-6 py-6 space-y-6">
@@ -145,6 +186,19 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
               ? "Opposing"
               : "Neutral / Context"}
           </p>
+          
+        {rootAuthor && (
+          <div className="text-[11px] text-zinc-400">
+            By{" "}
+            <Link
+              href={`/profile/${String(rootAuthor._id)}`}
+              className="text-zinc-200 hover:underline"
+            >
+              {authorLabel(rootAuthor)}
+            </Link>
+          </div>
+        )}
+
           <h2 className="text-lg font-semibold text-white">
             {root.title || "Argument"}
           </h2>
@@ -210,6 +264,7 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
         ) : (
           orderedReplies.map((a) => {
             const replyVoting = votingStateFor(a.authorId);
+            const replyAuthor = getAuthor(a.authorId);
 
             return (
               <div
@@ -225,10 +280,25 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                       ? "Opposing"
                       : "Neutral / Context"}
                   </span>
+                  
                   {a.createdAt && (
                     <time className="text-[11px] text-zinc-500">
                       {new Date(a.createdAt).toLocaleString()}
                     </time>
+                  )}
+                </div>
+                <div className="text-[11px] text-zinc-400">
+                  By{" "}
+                  {replyAuthor && (
+                    <div className="text-[11px] text-zinc-400">
+                      By{" "}
+                      <Link
+                        href={`/profile/${String(replyAuthor._id)}`}
+                        className="text-zinc-200 hover:underline"
+                      >
+                        {authorLabel(replyAuthor)}
+                      </Link>
+                    </div>
                   )}
                 </div>
 

@@ -7,7 +7,7 @@ export type Post = {
     author?: string;
     createdAt?: string;
 }
-
+//todo - add author's name
 type ArgumentCardProps = {
   post: Post;
   openHref: string;
