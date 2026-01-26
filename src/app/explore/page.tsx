@@ -31,6 +31,7 @@ type DebateLean = {
   lastActivityAt?: Date;
   argsCountPro?: number;
   argsCountCon?: number;
+  argsCountNeutral?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -142,7 +143,7 @@ export default async function ExplorePage({ searchParams,}: { searchParams: Prom
 
               <div className="mt-4 flex items-center justify-between text-xs text-zinc-400">
                 <span>
-                  Pro {d.argsCountPro ?? 0} · Con {d.argsCountCon ?? 0}
+                  Pro {d.argsCountPro ?? 0} · Neutral {d.argsCountNeutral ?? 0} · Con {d.argsCountCon ?? 0}
                 </span>
                 <span>
                   {formatWhen(d.lastActivityAt || d.updatedAt || d.createdAt)}
