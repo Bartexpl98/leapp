@@ -24,12 +24,18 @@ type DebateLean = {
   argsCountCon?: number;
 };
 
+type AuthorLean = {
+  _id: Types.ObjectId;
+  nickname?: string;
+  name?: string;
+};
+
 type ArgLean = {
   _id: Types.ObjectId;
   title?: string;
   body: string;
   summary?: string;
-  authorId?: Types.ObjectId | string;
+  authorId?: Types.ObjectId | AuthorLean;
   createdAt?: Date | string;
 };
 
@@ -54,19 +60,19 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
     Argument.find({ debateId, side: "affirmative", depth: 0 })
       .sort({ score: -1, createdAt: -1 })
       .skip((proPage - 1) * PAGE_SIZE)
-      .limit(PAGE_SIZE)
+      .limit(PAGE_SIZE).populate("authorId", "name nickname")
       .lean<ArgLean[]>(),
 
     Argument.find({ debateId, side: "opposing", depth: 0 })
       .sort({ score: -1, createdAt: -1 })
       .skip((conPage - 1) * PAGE_SIZE)
-      .limit(PAGE_SIZE)
+      .limit(PAGE_SIZE).populate("authorId", "name nickname")
       .lean<ArgLean[]>(),
 
     Argument.find({ debateId, side: "neutral", depth: 0 })
       .sort({ score: -1, createdAt: -1 })
       .skip((neutralPage - 1) * PAGE_SIZE)
-      .limit(PAGE_SIZE)
+      .limit(PAGE_SIZE).populate("authorId", "name nickname")
       .lean<ArgLean[]>(),
 
     Argument.countDocuments({ debateId, side: "affirmative", depth: 0 }),
@@ -81,11 +87,21 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
         : new Date(a.createdAt).toISOString()
       : new Date().toISOString();
 
+  const author =
+  a.authorId && typeof a.authorId === "object" && "_id" in a.authorId
+    ? {
+        id: String((a.authorId as AuthorLean)._id),
+        nickname: (a.authorId as AuthorLean).nickname,
+        name: (a.authorId as AuthorLean).name,
+      }
+    : a.authorId
+    ? { id: String(a.authorId) }
+    : undefined;
     return {
       id: String(a._id),
       title: a.title || a.summary || (a.body?.slice(0, 80) + "…"),
       summary: a.summary || a.body?.slice(0, 200),
-      author: a.authorId ? String(a.authorId) : "Anonymous",
+      author,
       createdAt: createdIso,
     };
   };

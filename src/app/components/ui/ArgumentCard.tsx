@@ -4,7 +4,10 @@ export type Post = {
     id: string;
     title: string;
     summary: string;
-    author?: string;
+    author?: {
+      id: string;
+      nickname?: string;
+      name?: string;};
     createdAt?: string;
 }
 //todo - add author's name
@@ -66,8 +69,21 @@ export default function ArgumentCard({
         )}
 
         {post.author && (
-          <span className="ml-auto text-xs text-zinc-400">by {post.author}</span>
-        )}
+          <span className="ml-auto text-xs text-zinc-400">
+            by{" "}
+            <Link
+              href={`/profile/${post.author.id}`}
+              className="text-zinc-200 hover:underline"
+              title={
+                post.author.nickname
+                  ? `@${post.author.nickname}`
+                  : post.author.name ?? "User"}>
+                    
+              {post.author.nickname
+                ? `@${post.author.nickname}`
+                : post.author.name ?? "User"}
+            </Link>
+          </span>)}
       </footer>
     </article>
   );

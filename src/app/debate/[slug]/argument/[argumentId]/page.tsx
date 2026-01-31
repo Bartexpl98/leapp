@@ -288,7 +288,6 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                   )}
                 </div>
                 <div className="text-[11px] text-zinc-400">
-                  By{" "}
                   {replyAuthor && (
                     <div className="text-[11px] text-zinc-400">
                       By{" "}

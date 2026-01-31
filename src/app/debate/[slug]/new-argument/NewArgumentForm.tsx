@@ -151,6 +151,7 @@ export default function NewArgumentForm({
           placeholder="Make your case and cite sources if possible…"
           rows={8}
           value={body}
+          maxLength={3000}
           onChange={(e) => setBody(e.target.value)}
           required
         />
