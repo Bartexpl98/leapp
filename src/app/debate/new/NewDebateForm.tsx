@@ -99,7 +99,7 @@ export default function NewDebateForm({ topics }: { topics: Topic[] }) {
           })}
         </div>
         <p className="mt-2 text-xs text-zinc-400">
-          Select one or more topics. You can change them later.
+          Select one or more topics.
         </p>
       </div>
 

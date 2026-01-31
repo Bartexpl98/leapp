@@ -114,25 +114,25 @@ export default function NewArgumentForm({
           <input
             type="radio"
             name="side"
-            value="opposing"
-            checked={side === "opposing"}
-            onChange={() => setSide("opposing")}
-          />
-          Opposing
-        </label>
-
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="radio"
-            name="side"
             value="neutral"
             checked={side === "neutral"}
             onChange={() => setSide("neutral")}
           />
           Neutral / Context
         </label>
-      </div>
+      
 
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="radio"
+            name="side"
+            value="opposing"
+            checked={side === "opposing"}
+            onChange={() => setSide("opposing")}
+          />
+          Opposing
+        </label>
+      </div>
       {/* title / body */}
       <label className="block">
         <span className="mb-1 block text-sm text-zinc-300">Title (optional)</span>
