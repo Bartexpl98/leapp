@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth-options";
 import { dbConnect } from "@/app/lib/mongoose";
 import Debate from "@/app/models/debate";
 import Topic from "@/app/models/topic";
+import User from "@/app/models/user";
+import type { Types } from "mongoose";
 
 type CreateDebateBody = {
   question: string;
@@ -30,8 +34,15 @@ async function uniqueSlug(base: string) {
 
 export async function POST(req: Request) {
   try {
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ message: "Not signed in" }, { status: 401 });
+    }
+
     await dbConnect();
-    const body = await req.json();
+    const body = (await req.json()) as Partial<CreateDebateBody>;
+
 
     const question = String(body?.question || "").trim();
     const summary = typeof body?.summary === "string" ? body.summary.trim() : "";
@@ -44,8 +55,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Select at least one topic" }, { status: 400 });
     }
 
+
+    const user = await User.findOne({ email: session.user.email })
+      .select({ _id: 1 })
+      .lean<{ _id: Types.ObjectId } | null>();
+
+    if (!user?._id) {
+      return NextResponse.json({ message: "User not found" }, { status: 401 });
+    }
+
     const firstSlug = topicSlugs[0];
-    const primaryTopic = await Topic.findOne({ slug: firstSlug }).select("_id").lean<{ _id: unknown } | null>();
+    const primaryTopic = await Topic.findOne({ slug: firstSlug }).select("_id").lean<{ _id: Types.ObjectId } | null>();
 
     if (!primaryTopic?._id) {
       return NextResponse.json({ message: `Topic not found: ${firstSlug}` }, { status: 400 });
@@ -60,7 +80,8 @@ export async function POST(req: Request) {
       slug,
       summary: summary || undefined,
       topics: topicSlugs,          
-      lastActivityAt: new Date(),       
+      lastActivityAt: new Date(),
+      authorId: user._id,       
     // argsCountPro/Con  ? defaults (0)?
     });
 

@@ -16,12 +16,19 @@ type PageProps = {
 
 const PAGE_SIZE = 10;
 
+type DebateAuthorLean = {
+  _id: Types.ObjectId;
+  nickname?: string;
+  name?: string;
+};
+
 type DebateLean = {
   _id: Types.ObjectId;
   question: string;
   slug: string;
   argsCountPro?: number;
   argsCountCon?: number;
+  authorId?: Types.ObjectId | DebateAuthorLean;
 };
 
 type AuthorLean = {
@@ -51,7 +58,7 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
 
   await dbConnect();
 
-  const debate = await Debate.findOne({ slug }).lean<DebateLean | null>();
+  const debate = await Debate.findOne({ slug }).populate("authorId", "nickname name").lean<DebateLean | null>();
   if (!debate) return notFound();
 
   const debateId = debate._id;
@@ -123,6 +130,18 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
           <h1 className={`${lusitana.className} text-xl md:text-2xl text-white`}>
             {debate.question}
           </h1>
+
+          {debate.authorId && typeof debate.authorId === "object" && "_id" in debate.authorId && (
+            <div className="mt-1 text-sm text-zinc-400">
+              By{" "}
+              <Link
+                href={`/profile/${String((debate.authorId as DebateAuthorLean)._id)}`}
+                className="text-zinc-200 hover:underline"
+                title={(debate.authorId as DebateAuthorLean).nickname ? `@${(debate.authorId as DebateAuthorLean).nickname}` : (debate.authorId as DebateAuthorLean).name ?? "User"}>
+                {(debate.authorId as DebateAuthorLean).nickname ? `@${(debate.authorId as DebateAuthorLean).nickname}` : (debate.authorId as DebateAuthorLean).name ?? "User"}
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

@@ -10,6 +10,8 @@ export interface IDebate {
   argsCountCon: number;
   argsCountNeutral: number;
   topics: string[];
+  authorId: mongoose.Types.ObjectId;
+
 }
 
 const DebateSchema = new Schema<IDebate>({
@@ -23,11 +25,21 @@ const DebateSchema = new Schema<IDebate>({
   argsCountNeutral: {type: Number, default: 0, index: true},
   
   topics: [{ type: String, index: true }],
+
+  authorId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: false, // false for now to not break old debates.
+    index: true,
+  },
 }, { timestamps: true });
 
 DebateSchema.index({ topicId: 1, createdAt: -1 });
 DebateSchema.index({ createdAt: -1 });
 DebateSchema.index({ lastActivityAt: -1 });
 DebateSchema.index({ argsCountPro: -1, argsCountCon: -1, lastActivityAt: -1 });
+
+DebateSchema.index({ authorId: 1, createdAt: -1 }); // to show debates by user
+
 
 export default models.Debate || model<IDebate>("Debate", DebateSchema);
