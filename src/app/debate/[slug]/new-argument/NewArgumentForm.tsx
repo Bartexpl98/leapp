@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { createArgument } from "../actions";
 import type { Side } from "@/app/models/argument";
 
-type EvidenceItem = { url: string; title: string; quote: string; locator: string };
+type EvidenceType = | "article"| "paper" | "book" | "report" | "dataset" | "video"
+  | "podcast" | "tweet" | "website" | "other";
+
+type EvidenceItem = { type: EvidenceType; url: string; title: string; quote: string; locator: string };
 
 type CreateArgumentResult = { ok: boolean; id?: string; error?: string };
 
@@ -29,7 +32,7 @@ export default function NewArgumentForm({
   const [body, setBody] = useState("");
 
   const [evidence, setEvidence] = useState<EvidenceItem[]>([
-    { url: "", title: "", quote: "", locator: "" },
+    { type: "article", url: "", title: "", quote: "", locator: "" },
   ]);
 
   const [error, setError] = useState("");
@@ -44,7 +47,7 @@ export default function NewArgumentForm({
   }
 
   function addEv() {
-    setEvidence((prev) => [...prev, { url: "", title: "", quote: "", locator: "" }]);
+    setEvidence((prev) => [...prev, { type: "article", url: "", title: "", quote: "", locator: "" }]);
   }
 
   function removeEv(i: number) {
@@ -59,6 +62,7 @@ export default function NewArgumentForm({
         // require at least one evidence item with something filled
         const cleaned = evidence
           .map((e) => ({
+            type: e.type,
             url: e.url.trim(),
             title: e.title.trim(),
             quote: e.quote.trim(),
@@ -73,8 +77,8 @@ export default function NewArgumentForm({
 
         fd.set("slug", slug);
         fd.set("side", side); // Side is a string union; FormData expects string
-        fd.set("title", title);
-        fd.set("body", body);
+        fd.set("title", title.trim());
+        fd.set("body", body.trim());
         fd.set("evidence", JSON.stringify(cleaned));
 
         if (parentId) {
@@ -191,6 +195,21 @@ export default function NewArgumentForm({
                 rows={3}
               />
               <div className="flex items-center gap-3">
+                <select
+                  value={ev.type}
+                  onChange={(e) => setEv(i, "type", e.target.value as EvidenceType)}
+                  className="flex-1 rounded bg-zinc-800 p-2 text-sm text-zinc-100 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-violet-500">
+                  <option value="article">Article</option>
+                  <option value="paper">Academic paper</option>
+                  <option value="book">Book</option>
+                  <option value="report">Report</option>
+                  <option value="dataset">Dataset</option>
+                  <option value="video">Video</option>
+                  <option value="podcast">Podcast</option>
+                  <option value="tweet">Social post</option>
+                  <option value="website">Website</option>
+                  <option value="other">Other</option>
+                </select>
                 <input
                   placeholder="Locator (page/section/timecode)"
                   value={ev.locator}
