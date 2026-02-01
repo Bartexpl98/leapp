@@ -75,7 +75,7 @@ export default async function ProfilePage() {
     <div className="min-h-screen w-full bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-900 text-zinc-100">
       <div className="mx-auto max-w-5xl px-4 md:px-8 py-8 space-y-6">
         <header>
-          <h1 className="text-2xl md:text-3xl font-semibold">Profile</h1>
+          <h1 className="text-2xl md:text-3xl font-semibold">Profile Settings</h1>
           <p className="text-sm text-zinc-400">Manage your account & preferences.</p>
         </header>
         <ProfileForm initialUser={user} />

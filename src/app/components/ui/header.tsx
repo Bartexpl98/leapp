@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import AcmeLogo from '@/app/components/ui/acme-logo';
 import Link from 'next/link';
-import { User as UserIcon, LogOut, Plus } from 'lucide-react';
+import { User as UserIcon, LogOut, Plus,Settings} from 'lucide-react';
 
 export default function Header() {
   const { data: session } = useSession();
@@ -89,6 +89,8 @@ export default function Header() {
       router.push(q ? `/explore?q=${encodeURIComponent(q)}` : '/explore');
   }
 
+  const myPublicProfileHref = typeof session?.user?.id === 'string' ? `/profile/${session.user.id}` : '/profile'
+
    return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-gradient-to-r from-zinc-800/95 via-zinc-800/95 to-zinc-800/95 backdrop-blur supports-[backdrop-filter]:bg-zinc-900/70 shadow-lg">
       <div className="mx-auto max-w-7xl px-4 px-6 px-8">
@@ -163,12 +165,22 @@ export default function Header() {
                     <button
                       onClick={() => {
                         closeDropdown();
-                        router.push('/profile');
+                        router.push(myPublicProfileHref);
                       }}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-white/10"
                     >
                       <UserIcon size={16} /> Profile
                     </button>
+
+                    <button
+                      onClick={() => {
+                        closeDropdown();
+                        router.push('/profile');
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left hover:bg-white/10">
+                      <Settings size={16} /> Settings
+                    </button>
+
                     <button
                       onClick={() => signOut({ callbackUrl: '/signin' })}
                       className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-rose-300 hover:bg-rose-500/10"
