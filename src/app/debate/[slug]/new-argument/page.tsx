@@ -3,6 +3,9 @@ import { dbConnect } from "@/app/lib/mongoose";
 import Debate from "@/app/models/debate";
 import NewArgumentForm from "./NewArgumentForm";
 import Argument from "@/app/models/argument";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth-options";
+import Link from "next/link";
 
 
 export const dynamic = "force-dynamic";
@@ -16,6 +19,7 @@ export default async function NewArgumentPage({
 }) {
   const { slug } = await params;
   const sp = searchParams ? await searchParams : undefined;
+  const session = await getServerSession(authOptions);
 
   const sideParam =
     typeof sp?.side === "string"
@@ -82,7 +86,19 @@ export default async function NewArgumentPage({
       )}
 
       {/* Pass only primitives to the client */}
-      <NewArgumentForm slug={d.slug} initialSide={initialSide} parentId={parentId} />
+      {session ? (
+      <NewArgumentForm slug={d.slug} initialSide={initialSide} parentId={parentId} />) : (
+        <div className="rounded-2xl border border-white/10 bg-zinc-900/70 p-6 text-center space-y-3">
+          <p className="text-sm text-zinc-300">
+            You need to be signed in to add an argument.
+          </p>
+          <Link
+            href="/signin"
+            className="inline-block rounded-xl bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-500">
+            Sign in to continue
+          </Link>
+        </div>
+      )}
     </main>
   );
 }

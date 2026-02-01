@@ -6,6 +6,9 @@ import Argument from "@/app/models/argument";
 import { lusitana } from "@/app/components/ui/fonts";
 import ArgumentCard, { Post } from "@/app/components/ui/ArgumentCard";
 import type { Types } from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth-options";
+
 
 export const dynamic = "force-dynamic"; // fetch at runtime to avoid build-time DB connect errors
 
@@ -49,6 +52,8 @@ type ArgLean = {
 export default async function DebateBySlugPage({ params, searchParams }: PageProps) {
   const p = await params;
   const sp = await searchParams;
+  const session = await getServerSession(authOptions);
+
 
   const { slug } = p;
   
@@ -152,12 +157,22 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Affirmative</h2>
             <div className="flex items-center gap-3">
+            {session ? (
               <Link
                 href={`${basePath}/new-argument?side=affirmative`}
                 className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
               >
                 Add argument
               </Link>
+            ) : (
+              <Link
+                href="/signin"
+                className="text-sm rounded-xl bg-white/10 px-3 py-2 text-zinc-300 ring-1 ring-white/10 hover:bg-white/20"
+                title="Sign in to add an argument"
+              >
+                Sign in to add
+              </Link>
+            )}
             </div>
           </header>
 
@@ -189,12 +204,22 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Neutral / Context</h2>
             <div className="flex items-center gap-3">
+            {session ? (
               <Link
-                href={`${basePath}/new-argument?side=neutral`}
+                href={`${basePath}/new-argument?side=affirmative`}
                 className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
               >
                 Add argument
               </Link>
+            ) : (
+              <Link
+                href="/signin"
+                className="text-sm rounded-xl bg-white/10 px-3 py-2 text-zinc-300 ring-1 ring-white/10 hover:bg-white/20"
+                title="Sign in to add an argument"
+              >
+                Sign in to add
+              </Link>
+            )}
             </div>
           </header>
 
@@ -226,12 +251,22 @@ export default async function DebateBySlugPage({ params, searchParams }: PagePro
           <header className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Opposing</h2>
             <div className="flex items-center gap-3">
+            {session ? (
               <Link
-                href={`${basePath}/new-argument?side=opposing`}
+                href={`${basePath}/new-argument?side=affirmative`}
                 className="text-sm rounded-xl bg-violet-600/90 px-3 py-2 text-white hover:bg-violet-600"
               >
                 Add argument
               </Link>
+            ) : (
+              <Link
+                href="/signin"
+                className="text-sm rounded-xl bg-white/10 px-3 py-2 text-zinc-300 ring-1 ring-white/10 hover:bg-white/20"
+                title="Sign in to add an argument"
+              >
+                Sign in to add
+              </Link>
+            )}
             </div>
           </header>
 
