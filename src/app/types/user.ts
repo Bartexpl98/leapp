@@ -2,7 +2,7 @@ export type UserDTO = {
   email?: string;
   phone?: string;
   name?: string;
-  nickname?: string;
+  nickname: string;
   address?: { line1?: string; line2?: string; city?: string; postalCode?: string; country?: string };
   preferences?: {
     theme?: "light" | "dark";

@@ -16,7 +16,7 @@ export interface IUser extends Document {
   email?: string;
   phone?: string;
   name?: string;        // full legal name
-  nickname?: string;    // casual display name
+  nickname: string;    // casual display name
   address?: {
     line1?: string;
     line2?: string;
@@ -45,7 +45,13 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: false, unique: true, sparse: true, lowercase: true, trim: true },
     phone: { type: String, required: false, unique: true, sparse: true },
     name: { type: String },
-    nickname: { type: String },
+    nickname: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      minlength: 2,
+    },
     address: {
       line1: { type: String },
       line2: { type: String },
