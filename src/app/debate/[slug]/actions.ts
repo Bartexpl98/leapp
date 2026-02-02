@@ -12,6 +12,7 @@ const s = (v: FormDataEntryValue | null) =>
   typeof v === "string" ? v.trim() : undefined;
 
 type EvidenceItem = {
+  evidenceType: string;
   url?: string;
   title?: string;
   quote?: string;
@@ -39,12 +40,22 @@ export async function createArgument(formData: FormData) {
     try {
       const parsed = JSON.parse(evidenceRaw);
       if (Array.isArray(parsed)) {
-        evidence = parsed;
+      evidence = parsed
+        .map((e: any) => ({
+          evidenceType: (e.evidenceType ?? e.type ?? "other").toString(),
+          url: typeof e.url === "string" ? e.url.trim() : undefined,
+          title: typeof e.title === "string" ? e.title.trim() : undefined,
+          quote: typeof e.quote === "string" ? e.quote.trim() : undefined,
+          locator: typeof e.locator === "string" ? e.locator.trim() : undefined,
+        }))
+        .filter((e) => e.url || e.title || e.quote);
       }
     } catch {
       // ignore malformed evidence for now
     }
   }
+
+  if (!evidence.length) throw new Error("Evidence is required");
 
   await dbConnect();
 

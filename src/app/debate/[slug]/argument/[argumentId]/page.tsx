@@ -37,6 +37,7 @@ type ArgumentDoc = {
   createdAt?: Date;
   evidence?: {
     _id: Types.ObjectId;
+    evidenceType?: string;
     url?: string;
     title?: string;
     quote?: string;
@@ -48,6 +49,24 @@ type ArgumentDoc = {
   };
   authorId?: Types.ObjectId | AuthorLean;
 };
+
+function evidenceTypeLabel(type?: string) {
+  if (!type) return "Evidence";
+
+    switch (type) {
+      case "article": return "Article";
+      case "paper": return "Academic paper";
+      case "book": return "Book";
+      case "report": return "Report";
+      case "dataset": return "Dataset";
+      case "video": return "Video";
+      case "podcast": return "Podcast";
+      case "tweet": return "Social post";
+      case "website": return "Website";
+      case "other": return "Other";
+      default: return type;
+  }
+}
 
 function getAuthor(authorId?: Types.ObjectId | AuthorLean) {
   if (!authorId) return null;
@@ -218,6 +237,15 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                   key={String(ev._id)}
                   className="rounded-lg bg-zinc-900/80 border border-white/10 p-2 text-xs text-zinc-200"
                 >
+                <pre className="mt-2 text-[10px] text-zinc-500">
+                  {JSON.stringify(ev, null, 2)}
+                </pre>
+                  {ev.evidenceType && (
+                    <span className="inline-flex rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-zinc-300 ring-1 ring-white/10">
+                      {evidenceTypeLabel(ev.evidenceType)}
+                    </span>
+                  )}
+
                   {ev.title && <p className="font-semibold">{ev.title}</p>}
                   {ev.quote && (
                     <p className="mt-1 italic text-zinc-300">“{ev.quote}”</p>
@@ -316,6 +344,12 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                           key={String(ev._id)}
                           className="rounded bg-zinc-900/80 border border-white/10 p-2"
                         >
+
+                          {ev.evidenceType && (
+                            <span className="inline-flex rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-zinc-300 ring-1 ring-white/10">
+                              {evidenceTypeLabel(ev.evidenceType)}
+                            </span>
+                          )}
                           {ev.title && (
                             <p className="text-[11px] font-semibold text-zinc-100">
                               {ev.title}

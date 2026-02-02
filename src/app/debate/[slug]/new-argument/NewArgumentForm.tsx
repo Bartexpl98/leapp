@@ -8,7 +8,7 @@ import type { Side } from "@/app/models/argument";
 type EvidenceType = | "article"| "paper" | "book" | "report" | "dataset" | "video"
   | "podcast" | "tweet" | "website" | "other";
 
-type EvidenceItem = { type: EvidenceType; url: string; title: string; quote: string; locator: string };
+type EvidenceItem = { evidenceType: EvidenceType; url: string; title: string; quote: string; locator: string };
 
 type CreateArgumentResult = { ok: boolean; id?: string; error?: string };
 
@@ -32,7 +32,7 @@ export default function NewArgumentForm({
   const [body, setBody] = useState("");
 
   const [evidence, setEvidence] = useState<EvidenceItem[]>([
-    { type: "article", url: "", title: "", quote: "", locator: "" },
+    { evidenceType: "article", url: "", title: "", quote: "", locator: "" },
   ]);
 
   const [error, setError] = useState("");
@@ -47,7 +47,7 @@ export default function NewArgumentForm({
   }
 
   function addEv() {
-    setEvidence((prev) => [...prev, { type: "article", url: "", title: "", quote: "", locator: "" }]);
+    setEvidence((prev) => [...prev, { evidenceType: "article", url: "", title: "", quote: "", locator: "" }]);
   }
 
   function removeEv(i: number) {
@@ -62,7 +62,7 @@ export default function NewArgumentForm({
         // require at least one evidence item with something filled
         const cleaned = evidence
           .map((e) => ({
-            type: e.type,
+            evidenceType: e.evidenceType,
             url: e.url.trim(),
             title: e.title.trim(),
             quote: e.quote.trim(),
@@ -196,8 +196,8 @@ export default function NewArgumentForm({
               />
               <div className="flex items-center gap-3">
                 <select
-                  value={ev.type}
-                  onChange={(e) => setEv(i, "type", e.target.value as EvidenceType)}
+                  value={ev.evidenceType}
+                  onChange={(e) => setEv(i, "evidenceType", e.target.value as EvidenceType)}
                   className="flex-1 rounded bg-zinc-800 p-2 text-sm text-zinc-100 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-violet-500">
                   <option value="article">Article</option>
                   <option value="paper">Academic paper</option>

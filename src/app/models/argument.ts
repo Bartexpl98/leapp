@@ -8,6 +8,7 @@ const EvidenceSchema = new Schema({
     title: String,
     quote: String,
     locator: String, // page/section/timecode/etc.
+    evidenceType: { type: String, required: true },
   }, { _id: true });
 
 const VoteAggregationSchema = new Schema(
