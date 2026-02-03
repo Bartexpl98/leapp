@@ -7,7 +7,6 @@ import Argument from "@/app/models/argument";
 import type { Types } from "mongoose";
 import User from "@/app/models/user";
 
-
 const s = (v: FormDataEntryValue | null) =>
   typeof v === "string" ? v.trim() : undefined;
 
@@ -17,6 +16,16 @@ type EvidenceItem = {
   title?: string;
   quote?: string;
   locator?: string;
+};
+
+// Incoming JSON is untrusted
+type IncomingEvidence = {
+  evidenceType?: unknown;
+  type?: unknown;
+  url?: unknown;
+  title?: unknown;
+  quote?: unknown;
+  locator?: unknown;
 };
 
 export async function createArgument(formData: FormData) {
@@ -38,17 +47,40 @@ export async function createArgument(formData: FormData) {
   let evidence: EvidenceItem[] = [];
   if (typeof evidenceRaw === "string" && evidenceRaw.trim()) {
     try {
-      const parsed = JSON.parse(evidenceRaw);
+      const parsed: unknown = JSON.parse(evidenceRaw);
+
       if (Array.isArray(parsed)) {
-      evidence = parsed
-        .map((e: any) => ({
-          evidenceType: (e.evidenceType ?? e.type ?? "other").toString(),
-          url: typeof e.url === "string" ? e.url.trim() : undefined,
-          title: typeof e.title === "string" ? e.title.trim() : undefined,
-          quote: typeof e.quote === "string" ? e.quote.trim() : undefined,
-          locator: typeof e.locator === "string" ? e.locator.trim() : undefined,
-        }))
-        .filter((e) => e.url || e.title || e.quote);
+        evidence = parsed
+          .map((e): EvidenceItem | null => {
+            const ev = e as IncomingEvidence;
+
+            const url = typeof ev.url === "string" ? ev.url.trim() : undefined;
+            const title =
+              typeof ev.title === "string" ? ev.title.trim() : undefined;
+            const quote =
+              typeof ev.quote === "string" ? ev.quote.trim() : undefined;
+            const locator =
+              typeof ev.locator === "string" ? ev.locator.trim() : undefined;
+
+            // keep your existing rule: must have at least one of these
+            if (!url && !title && !quote) return null;
+
+            const evidenceType =
+              typeof ev.evidenceType === "string"
+                ? ev.evidenceType
+                : typeof ev.type === "string"
+                ? ev.type
+                : "other";
+
+            return {
+              evidenceType: evidenceType.toString(),
+              url,
+              title,
+              quote,
+              locator,
+            };
+          })
+          .filter((e): e is EvidenceItem => e !== null);
       }
     } catch {
       // ignore malformed evidence for now
@@ -130,10 +162,7 @@ export async function createArgument(formData: FormData) {
     await Argument.updateOne({ _id: parentId }, { $inc: { replyCount: 1 } });
 
     if (rootId && String(rootId) !== String(parentId)) {
-      await Argument.updateOne(
-        { _id: rootId },
-        { $inc: { replyCount: 1 } }
-      );
+      await Argument.updateOne({ _id: rootId }, { $inc: { replyCount: 1 } });
     }
 
     await Debate.updateOne(
