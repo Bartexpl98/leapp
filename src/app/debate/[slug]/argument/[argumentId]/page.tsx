@@ -237,9 +237,6 @@ export default async function ArgumentThreadPage({ params }: PageProps) {
                   key={String(ev._id)}
                   className="rounded-lg bg-zinc-900/80 border border-white/10 p-2 text-xs text-zinc-200"
                 >
-                <pre className="mt-2 text-[10px] text-zinc-500">
-                  {JSON.stringify(ev, null, 2)}
-                </pre>
                   {ev.evidenceType && (
                     <span className="inline-flex rounded-full bg-white/5 px-2 py-0.5 text-[10px] text-zinc-300 ring-1 ring-white/10">
                       {evidenceTypeLabel(ev.evidenceType)}
