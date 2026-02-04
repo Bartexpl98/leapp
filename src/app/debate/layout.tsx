@@ -10,8 +10,6 @@ export const metadata: Metadata = {
 export default function DebateLayout({ children }: { children: React.ReactNode }) {
   // If you want to fetch dynamic topics here, you can make this an async component
   // and load from DB. For now, a small static list:
-  const topics = ["All Topics", "Tech & Society", "Education", "Health", "Policy"];
-
   return (
         <div className="mx-auto max-w-7xl px-4 md:px-8 py-6 grid grid-cols-12 gap-6">
          {/*<TopicsComponent topics={topics}/>*/}
