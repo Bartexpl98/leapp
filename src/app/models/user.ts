@@ -47,9 +47,10 @@ const UserSchema = new Schema<IUser>(
     name: { type: String },
     nickname: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
       trim: true,
+      sparse: true,
       minlength: 2,
     },
     address: {
