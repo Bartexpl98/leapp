@@ -14,7 +14,7 @@ export default function Page() {
             Engage in <span className="text-violet-400">Evidence-Based Discourse</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-zinc-300">
-            Join structured debates built on verified sources and sound reasoning. Strengthen your arguments with evidence, credibility, and collaboration.
+            Join structured debates built on evidence-based discourse and structured arguments.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
             <Link
@@ -34,7 +34,7 @@ export default function Page() {
         </div>
       </section>
 
-    {/**Joemon additon */} <div className="flex justify-center mb-2 sm:mb-4 mt-0"> <DateCard className="mt-0" /> </div>
+    {/*{/**Joemon additon } <div className="flex justify-center mb-2 sm:mb-4 mt-0"> <DateCard className="mt-0" /> </div>*/}
 
 
       {/* Features */}
@@ -44,17 +44,17 @@ export default function Page() {
             <FeatureCard
               icon={<MessageSquare className="h-5 w-5 text-violet-400" />}
               title="Structured Discussions"
-              desc="placeholder"
+              desc="Take part in debates organised around clear topics, state your position explicitly, and reply directly to specific arguments."
             />
             <FeatureCard
               icon={<CheckCircle2 className="h-5 w-5 text-violet-400" />}
-              title="Verified Sources"
-              desc="placeholder"
+              title="Evidence-Based Discourse"
+              desc="Attach evidence to your claims, including sources, quotations, and references that make arguments more transparent and credible."
             />
             <FeatureCard
               icon={<Lightbulb className="h-5 w-5 text-violet-400" />}
-              title="Collaborative Learning"
-              desc="placeholder"
+              title="Evaluate Arguments"
+              desc="Assess arguments based on soundness and factuality, helping others highlight stronger reasoning and better-supported claims."
             />
           </div>
         </div>
