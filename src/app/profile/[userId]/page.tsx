@@ -133,15 +133,6 @@ export default async function ProfilePage({params, searchParams}: PageProps) {
           </section>
 
           {/*future ideas*/}
-          <section className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400 mb-2">
-              Ideas to add later
-            </p>
-            <ul className="text-sm text-zinc-400 space-y-1">
-              <li>- credibility score / “reputation”</li>
-              <li>- top topics they post in</li>
-            </ul>
-          </section>
         </aside>
 
         {/*Right column tabs + content*/}
