@@ -103,7 +103,7 @@ export default function NewArgumentForm({
     >
       {/* side */}
       <div className="flex gap-3">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-zinc-100">
           <input
             type="radio"
             name="side"
@@ -114,7 +114,7 @@ export default function NewArgumentForm({
           Affirmative
         </label>
         
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-zinc-100">
           <input
             type="radio"
             name="side"
@@ -126,7 +126,7 @@ export default function NewArgumentForm({
         </label>
       
 
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-zinc-100">
           <input
             type="radio"
             name="side"
